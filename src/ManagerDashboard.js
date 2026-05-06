@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000';
+const FRONTEND_URL = window.location.origin;
 
 export default function ManagerDashboard({ onBack }) {
   const [currentView, setCurrentView] = useState('menu');
@@ -9,6 +10,7 @@ export default function ManagerDashboard({ onBack }) {
   const [requests, setRequests] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState('');
+  const [qrTable, setQrTable] = useState(1);
 
   useEffect(() => {
     fetchData();
@@ -48,13 +50,15 @@ export default function ManagerDashboard({ onBack }) {
   };
 
   const avgRating = (stats.avg_rating || 0).toFixed(1);
+  const tableUrl = `${FRONTEND_URL}?table=${qrTable}`;
+  const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(tableUrl)}`;
 
   return (
     <div className="waiter-dashboard">
       <div className="waiter-header">
-        <button className="back-btn" onClick={onBack}>Back</button>
+        <button className="back-btn" onClick={onBack}>← Back</button>
         <div className="waiter-info">
-          <div className="waiter-name">Manager Dashboard</div>
+          <div className="waiter-name">⚙️ Manager Dashboard</div>
           <div className="waiter-subtitle">Cafe Management</div>
         </div>
         <div style={{width: 44}} />
@@ -80,22 +84,19 @@ export default function ManagerDashboard({ onBack }) {
 
       <div className="dashboard-tabs">
         <button className={`tab-btn ${currentView === 'menu' ? 'active' : ''}`} onClick={() => setCurrentView('menu')}>Menu Upload</button>
+        <button className={`tab-btn ${currentView === 'qr' ? 'active' : ''}`} onClick={() => setCurrentView('qr')}>QR Codes</button>
         <button className={`tab-btn ${currentView === 'reviews' ? 'active' : ''}`} onClick={() => setCurrentView('reviews')}>Reviews ({reviews.length})</button>
         <button className={`tab-btn ${currentView === 'requests' ? 'active' : ''}`} onClick={() => setCurrentView('requests')}>Requests ({requests.length})</button>
       </div>
 
-      {message && (
-        <div className="message-alert success" style={{margin: '12px 16px'}}>
-          {message}
-        </div>
-      )}
+      {message && <div className="message-alert success" style={{margin: '12px 16px'}}>{message}</div>}
 
       <div className="dashboard-content">
 
         {currentView === 'menu' && (
           <div>
             <div className="request-card" style={{marginBottom: 16}}>
-              <h2 style={{fontSize: 20, fontWeight: 700, marginBottom: 8, color: 'var(--text)'}}>Upload Menu PDF</h2>
+              <h2 style={{fontSize: 20, fontWeight: 700, marginBottom: 8}}>Upload Menu PDF</h2>
               <p style={{color: 'var(--text-light)', fontSize: 14, marginBottom: 20}}>Replace your cafe menu with a new PDF file</p>
               <div style={{border: '2px dashed var(--border)', borderRadius: 12, padding: 32, textAlign: 'center', background: 'linear-gradient(135deg, #f0f9ff 0%, #f5f3ff 100%)', marginBottom: 16}}>
                 <div style={{fontSize: 48, marginBottom: 12}}>📑</div>
@@ -109,12 +110,41 @@ export default function ManagerDashboard({ onBack }) {
               </div>
             </div>
             <div className="request-card" style={{background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)', border: 'none'}}>
-              <div style={{fontWeight: 700, marginBottom: 8, color: '#92400e', fontSize: 15}}>How Customers See It:</div>
-              <p style={{fontSize: 14, color: '#78350f', marginBottom: 8}}>When customers click Menu in the app they will see your PDF menu.</p>
+              <div style={{fontWeight: 700, marginBottom: 8, color: '#92400e'}}>How Customers See It:</div>
+              <p style={{fontSize: 14, color: '#78350f', marginBottom: 8}}>Customers click Menu tab to view your PDF.</p>
+              <div style={{fontSize: 13, color: '#92400e', lineHeight: 2}}>Works on mobile and desktop<br/>Customers can zoom and search</div>
+            </div>
+          </div>
+        )}
+
+        {currentView === 'qr' && (
+          <div>
+            <div className="request-card" style={{marginBottom: 16, textAlign: 'center'}}>
+              <h2 style={{fontSize: 20, fontWeight: 700, marginBottom: 8}}>QR Code Generator</h2>
+              <p style={{color: 'var(--text-light)', fontSize: 14, marginBottom: 20}}>Generate QR codes for each table</p>
+
+              <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16, marginBottom: 24}}>
+                <button onClick={() => setQrTable(Math.max(1, qrTable - 1))} style={{width: 40, height: 40, borderRadius: 8, border: '2px solid var(--border)', background: 'white', fontSize: 20, cursor: 'pointer', fontWeight: 700}}>−</button>
+                <div style={{fontSize: 24, fontWeight: 700}}>Table {qrTable}</div>
+                <button onClick={() => setQrTable(qrTable + 1)} style={{width: 40, height: 40, borderRadius: 8, border: '2px solid var(--border)', background: 'white', fontSize: 20, cursor: 'pointer', fontWeight: 700}}>+</button>
+              </div>
+
+              <img src={qrImageUrl} alt={`QR for Table ${qrTable}`} style={{width: 200, height: 200, borderRadius: 12, marginBottom: 16}} />
+
+              <p style={{fontSize: 13, color: 'var(--text-light)', marginBottom: 16, wordBreak: 'break-all'}}>{tableUrl}</p>
+
+              <a href={qrImageUrl} download={`table-${qrTable}-qr.png`} style={{padding: '12px 24px', background: 'linear-gradient(135deg, #2563eb 0%, #8b5cf6 100%)', color: 'white', borderRadius: 8, fontWeight: 700, display: 'inline-block', textDecoration: 'none'}}>
+                Download QR Code
+              </a>
+            </div>
+
+            <div className="request-card" style={{background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)', border: 'none'}}>
+              <div style={{fontWeight: 700, marginBottom: 8, color: '#92400e'}}>How to use:</div>
               <div style={{fontSize: 13, color: '#92400e', lineHeight: 2}}>
-                Works on mobile and desktop<br/>
-                Customers can zoom and search<br/>
-                No ordering through app
+                1. Select the table number<br/>
+                2. Download the QR code<br/>
+                3. Print and place on the table<br/>
+                4. Customers scan to access the app
               </div>
             </div>
           </div>
@@ -135,9 +165,7 @@ export default function ManagerDashboard({ onBack }) {
                   <span className="review-rating">{'⭐'.repeat(review.rating)}</span>
                 </div>
                 {review.comment && <div className="review-comment">{review.comment}</div>}
-                <div style={{fontSize: 12, color: 'var(--text-light)', marginTop: 8}}>
-                  {new Date(review.created_at).toLocaleDateString()}
-                </div>
+                <div style={{fontSize: 12, color: 'var(--text-light)', marginTop: 8}}>{new Date(review.created_at).toLocaleDateString()}</div>
               </div>
             ))}
           </div>

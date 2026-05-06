@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import './App.css';
 import CustomerApp from './CustomerApp';
-import StaffHome from './StaffHome';
 import WaiterLogin from './WaiterLogin';
 import WaiterDashboard from './WaiterDashboard';
 import ManagerDashboard from './ManagerDashboard';

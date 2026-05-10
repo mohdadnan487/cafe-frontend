@@ -132,7 +132,7 @@ const DIETARY_OPTIONS = [
 const DUMMY_VENDORS = [
   { id: 1, name: 'Burger Bros', cuisine: 'American', description: 'Juicy handcrafted burgers', logo_url: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400', is_open: true, wait_time: 12, tags: ['halal'] },
   { id: 2, name: 'Sushi Sato', cuisine: 'Japanese', description: 'Authentic Japanese sushi', logo_url: 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=400', is_open: true, wait_time: 18, tags: ['gluten_free'] },
-  { id: 3, name: 'Pizza Palace', cuisine: 'Italian', description: 'Wood fired Neapolitan pizza', logo_url: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=400', is_open: true, wait_time: 0, tags: ['vegetarian'] },
+  { id: 3, name: 'Pizza Palace', cuisine: 'Italian', description: 'Wood fired Neapolitan pizza', logo_url: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=400', is_open: false, wait_time: 0, tags: ['vegetarian'] },
   { id: 4, name: 'Green Bowl', cuisine: 'Healthy', description: 'Fresh salads and grain bowls', logo_url: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400', is_open: true, wait_time: 8, tags: ['vegan', 'gluten_free'] },
 ];
 
@@ -324,28 +324,10 @@ export default function CustomerApp({ tableNumber }) {
         <div style={{display: 'flex', gap: 6, alignItems: 'center'}}>
           {view === 'menu' && <button style={s.btn('#fff3f3', '#e53e3e')} onClick={callWaiter}>👋</button>}
           {view === 'vendors' && <button style={s.btn('#f0f4ff', '#2563eb')} onClick={() => setShowDietaryModal(true)}>🌱</button>}
-          <button style={s.btn('#f5f5f5', '#666')} onClick={() => setShowLangModal(true)}>{lang.toUpperCase()}</button>
-        </div>
-      </div>
 
       {message && <div style={{background: '#d4edda', color: '#155724', padding: '10px 16px', fontSize: 14, fontWeight: 600, textAlign: 'center'}}>{message}</div>}
 
-      {/* LANGUAGE MODAL */}
-      {showLangModal && (
-        <div style={{position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 300, display: 'flex', alignItems: 'flex-end'}}>
-          <div style={{background: 'white', borderRadius: '20px 20px 0 0', padding: 24, width: '100%', maxWidth: 480, margin: '0 auto'}}>
-            <div style={{fontWeight: 800, fontSize: 18, marginBottom: 16, textAlign: 'center'}}>Select Language</div>
-            {[{ code: 'en', label: '🇬🇧 English' }, { code: 'ar', label: '🇸🇦 العربية' }, { code: 'fr', label: '🇫🇷 Français' }, { code: 'ur', label: '🇵🇰 اردو' }].map(l => (
-              <button key={l.code} onClick={() => { setLang(l.code); setShowLangModal(false); }}
-                style={{width: '100%', padding: '14px', background: lang === l.code ? '#f0f4ff' : 'white', border: `2px solid ${lang === l.code ? '#2563eb' : '#f0f0f0'}`, borderRadius: 12, fontWeight: 700, fontSize: 16, cursor: 'pointer', marginBottom: 8, textAlign: isRTL ? 'right' : 'left', color: lang === l.code ? '#2563eb' : '#333'}}>
-                {l.label} {lang === l.code && '✓'}
-              </button>
-            ))}
-            <button onClick={() => setShowLangModal(false)} style={{...s.secondaryBtn, marginTop: 8}}>Close</button>
-          </div>
-        </div>
-      )}
-
+     
       {/* DIETARY MODAL */}
       {showDietaryModal && (
         <div style={{position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 300, display: 'flex', alignItems: 'flex-end'}}>

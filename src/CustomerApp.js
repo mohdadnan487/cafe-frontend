@@ -181,18 +181,14 @@ export default function CustomerApp({ tableNumber }) {
   const [orderStatus, setOrderStatus] = useState('confirmed');
   const [orderProgress, setOrderProgress] = useState(0);
   const [paymentMethod, setPaymentMethod] = useState(null);
-  const [lang, setLang] = useState('en');
   const [dietaryProfile, setDietaryProfile] = useState([]);
   const [showDietaryModal, setShowDietaryModal] = useState(false);
-  const [showLangModal, setShowLangModal] = useState(false);
   const [activeFilter, setActiveFilter] = useState('all');
   const [splitPeople, setSplitPeople] = useState(2);
   const [showSplit, setShowSplit] = useState(false);
   const [orderHistory, setOrderHistory] = useState([]);
   const progressRef = useRef(null);
 
-  const t = TRANSLATIONS[lang];
-  const isRTL = lang === 'ar' || lang === 'ur';
 
   useEffect(() => {
     fetch(`${API_URL}/api/vendors`)
@@ -317,7 +313,7 @@ export default function CustomerApp({ tableNumber }) {
             }}>←</button>
           )}
           <div>
-            <div style={{fontWeight: 800, fontSize: 16, color: '#1a1a1a'}}>{view === 'vendors' ? `🍽️ ${t.title}` : view === 'tracking' ? t.orderTracking : view === 'checkout' ? t.checkout : view === 'cart' || view === 'split' ? t.yourCart : selectedVendor?.name}</div>
+            <div style={{fontWeight: 800, fontSize: 16, color: '#1a1a1a'}}>{view === 'vendors' ? `🍽️ $The Food Quarter` : view === 'tracking' ? t.orderTracking : view === 'checkout' ? t.checkout : view === 'cart' || view === 'split' ? t.yourCart : selectedVendor?.name}</div>
             <div style={{fontSize: 11, color: '#999'}}>Table {tableNumber}</div>
           </div>
         </div>
@@ -332,7 +328,7 @@ export default function CustomerApp({ tableNumber }) {
       {showDietaryModal && (
         <div style={{position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 300, display: 'flex', alignItems: 'flex-end'}}>
           <div style={{background: 'white', borderRadius: '20px 20px 0 0', padding: 24, width: '100%', maxWidth: 480, margin: '0 auto'}}>
-            <div style={{fontWeight: 800, fontSize: 18, marginBottom: 4, textAlign: 'center'}}>🌱 {t.dietaryProfile}</div>
+            <div style={{fontWeight: 800, fontSize: 18, marginBottom: 4, textAlign: 'center'}}>🌱 Dietary Profile</div>
             <div style={{color: '#999', fontSize: 13, marginBottom: 20, textAlign: 'center'}}>Menu will auto-filter based on your preferences</div>
             {DIETARY_OPTIONS.map(opt => (
               <button key={opt.id} onClick={() => setDietaryProfile(prev => prev.includes(opt.id) ? prev.filter(d => d !== opt.id) : [...prev, opt.id])}
@@ -370,7 +366,7 @@ export default function CustomerApp({ tableNumber }) {
             </div>
           )}
 
-          <p style={{color: '#999', fontSize: 13, marginBottom: 16, textAlign: 'center'}}>{t.chooseVendor}</p>
+          <p style={{color: '#999', fontSize: 13, marginBottom: 16, textAlign: 'center'}}>Choose where to order from</p>
 
           {vendors.map(vendor => (
             <div key={vendor.id} onClick={() => selectVendor(vendor)}
@@ -387,7 +383,7 @@ export default function CustomerApp({ tableNumber }) {
                   <div style={{color: 'white', fontWeight: 800, fontSize: 20}}>{vendor.name}</div>
                   <div style={{display: 'flex', gap: 8, marginTop: 4, alignItems: 'center'}}>
                     <div style={{background: 'rgba(255,255,255,0.2)', color: 'white', padding: '3px 10px', borderRadius: 10, fontSize: 12, fontWeight: 600}}>{vendor.cuisine}</div>
-                    {vendor.is_open && <div style={{color: 'rgba(255,255,255,0.9)', fontSize: 12}}>⏱ {vendor.wait_time} {t.waitTime}</div>}
+                    {vendor.is_open && <div style={{color: 'rgba(255,255,255,0.9)', fontSize: 12}}>⏱ {vendor.wait_time} min wait</div>}
                     {vendor.tags?.map(tag => (
                       <div key={tag} style={{background: 'rgba(255,255,255,0.2)', color: 'white', padding: '3px 8px', borderRadius: 10, fontSize: 11}}>
                         {DIETARY_OPTIONS.find(d => d.id === tag)?.label.split(' ')[0]}
@@ -412,7 +408,7 @@ export default function CustomerApp({ tableNumber }) {
           {/* Vendor info bar */}
           <div style={{background: 'white', padding: '12px 16px', borderBottom: '1px solid #f0f0f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
             <div style={{fontSize: 13, color: '#666'}}>⏱ ~{selectedVendor?.wait_time} min wait</div>
-            <div style={{fontSize: 13, color: '#38a169', fontWeight: 700}}>● {t.open}</div>
+            <div style={{fontSize: 13, color: '#38a169', fontWeight: 700}}>● Open</div>
           </div>
 
           {/* Filters */}
@@ -435,7 +431,7 @@ export default function CustomerApp({ tableNumber }) {
                     <div style={{flex: 1, minWidth: 0}}>
                       <div style={{display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3, flexWrap: 'wrap'}}>
                         <div style={{fontWeight: 700, fontSize: 15, color: '#1a1a1a'}}>{item.name}</div>
-                        {item.is_popular && <div style={{background: '#fff3cd', color: '#856404', padding: '2px 8px', borderRadius: 10, fontSize: 11, fontWeight: 700}}>{t.mostOrdered}</div>}
+                        {item.is_popular && <div style={{background: '#fff3cd', color: '#856404', padding: '2px 8px', borderRadius: 10, fontSize: 11, fontWeight: 700}}>🔥 Most Ordered</div>}
                       </div>
                       {item.description && <div style={{fontSize: 12, color: '#999', marginBottom: 6, lineHeight: 1.4}}>{item.description}</div>}
                       <div style={{display: 'flex', gap: 4, marginBottom: 6, flexWrap: 'wrap'}}>
@@ -493,14 +489,14 @@ export default function CustomerApp({ tableNumber }) {
           ))}
 
           <div style={{...s.card, padding: 16, marginBottom: 16}}>
-            <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: 8, fontSize: 14, color: '#999'}}><span>{t.subtotal}</span><span>£{cartTotal.toFixed(2)}</span></div>
-            <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: 8, fontSize: 14, color: '#999'}}><span>{t.serviceFee}</span><span>£0.00</span></div>
+            <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: 8, fontSize: 14, color: '#999'}}><span>Subtotal</span><span>£{cartTotal.toFixed(2)}</span></div>
+            <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: 8, fontSize: 14, color: '#999'}}><span>Service fee</span><span>£0.00</span></div>
             <div style={{height: 1, background: '#f0f0f0', margin: '12px 0'}} />
-            <div style={{display: 'flex', justifyContent: 'space-between', fontWeight: 800, fontSize: 18}}><span>{t.total}</span><span style={{color: '#2563eb'}}>£{cartTotal.toFixed(2)}</span></div>
+            <div style={{display: 'flex', justifyContent: 'space-between', fontWeight: 800, fontSize: 18}}><span>Total</span><span style={{color: '#2563eb'}}>£{cartTotal.toFixed(2)}</span></div>
           </div>
 
           <button onClick={() => setShowSplit(!showSplit)} style={{width: '100%', padding: 14, background: '#f0f9f0', border: '2px solid #c6f6d5', borderRadius: 12, fontWeight: 700, fontSize: 14, cursor: 'pointer', color: '#38a169', marginBottom: 12}}>
-            💳 {t.splitBill}
+            💳 Split Bill
           </button>
 
           {showSplit && (
@@ -518,7 +514,7 @@ export default function CustomerApp({ tableNumber }) {
             </div>
           )}
 
-          <button onClick={() => setView('checkout')} style={{...s.primaryBtn, marginBottom: 10}}>{t.proceedPayment} →</button>
+          <button onClick={() => setView('checkout')} style={{...s.primaryBtn, marginBottom: 10}}>Proceed to Payment →</button>
           <button onClick={() => { setView('vendors'); }} style={s.secondaryBtn}>+ Order from another vendor</button>
         </div>
       )}
@@ -527,7 +523,7 @@ export default function CustomerApp({ tableNumber }) {
       {view === 'checkout' && (
         <div style={{padding: 16}}>
           <div style={{...s.card, padding: 16, marginBottom: 16}}>
-            <div style={{fontWeight: 800, fontSize: 16, marginBottom: 14}}>{t.paymentMethod}</div>
+            <div style={{fontWeight: 800, fontSize: 16, marginBottom: 14}}>Select Payment Method</div>
             {[
               { id: 'card', icon: '💳', label: 'Credit / Debit Card' },
               { id: 'apple', icon: '🍎', label: 'Apple Pay' },
@@ -555,12 +551,12 @@ export default function CustomerApp({ tableNumber }) {
           )}
 
           <div style={{...s.card, padding: 16, marginBottom: 16}}>
-            <div style={{display: 'flex', justifyContent: 'space-between', fontWeight: 800, fontSize: 18}}><span>{t.total}</span><span style={{color: '#2563eb'}}>£{cartTotal.toFixed(2)}</span></div>
+            <div style={{display: 'flex', justifyContent: 'space-between', fontWeight: 800, fontSize: 18}}><span>Total</span><span style={{color: '#2563eb'}}>£{cartTotal.toFixed(2)}</span></div>
           </div>
 
           <button onClick={placeOrder} disabled={!paymentMethod}
             style={{...s.primaryBtn, background: paymentMethod ? 'linear-gradient(135deg, #2563eb, #8b5cf6)' : '#ccc', marginBottom: 10, cursor: paymentMethod ? 'pointer' : 'not-allowed'}}>
-            {paymentMethod ? `${t.payNow} £${cartTotal.toFixed(2)}` : t.paymentMethod}
+            {paymentMethod ? `Pay £${cartTotal.toFixed(2)}` : "Select Payment Method"}
           </button>
         </div>
       )}
@@ -601,7 +597,7 @@ export default function CustomerApp({ tableNumber }) {
           </div>
 
           <button onClick={callWaiter} style={{width: '100%', padding: 16, background: '#fff3f3', border: 'none', borderRadius: 16, fontWeight: 700, fontSize: 15, cursor: 'pointer', color: '#e53e3e', marginBottom: 10}}>
-            👋 {t.callWaiter}
+            👋 Call Waiter
           </button>
           <button onClick={() => { setView('vendors'); setSelectedVendor(null); setOrderStatus('confirmed'); setOrderProgress(0); }} style={s.secondaryBtn}>
             Order from Another Vendor
@@ -615,7 +611,7 @@ export default function CustomerApp({ tableNumber }) {
           <button onClick={() => setView('cart')}
             style={{width: '100%', padding: '16px 20px', background: 'linear-gradient(135deg, #2563eb, #8b5cf6)', color: 'white', border: 'none', borderRadius: 16, fontWeight: 800, fontSize: 15, cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 8px 24px rgba(37,99,235,0.4)'}}>
             <div style={{background: 'rgba(255,255,255,0.25)', borderRadius: 8, padding: '4px 10px'}}>{cartCount} items</div>
-            <span>{t.viewCart}</span>
+            <span>View Cart</span>
             <span>£{cartTotal.toFixed(2)}</span>
           </button>
         </div>

@@ -55,14 +55,10 @@ export default function VendorApp({ onLogout }) {
         setVendor(data.vendor);
         fetchLiveData(data.token);
       } else {
-        // auto demo mode
-        setToken("demo");
-        setVendor({ name: "Demo Store", cuisine: "Food", email: loginForm.email });
-        setTimeout(() => setMessage(''), 3000);
+        setToken('demo');
+        setVendor({ name: loginForm.email.split('@')[0] || 'My Store', cuisine: 'Food', email: loginForm.email });
       }
     } catch (err) {
-      setMessage('Login failed — using demo mode');
-      setTimeout(() => setMessage(''), 3000);
       setToken('demo');
       setVendor({ name: loginForm.email.split('@')[0] || 'My Store', cuisine: 'Food', email: loginForm.email });
     }

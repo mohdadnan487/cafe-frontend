@@ -132,7 +132,7 @@ const DIETARY_OPTIONS = [
 const DUMMY_VENDORS = [
   { id: 1, name: 'Burger Bros', cuisine: 'American', description: 'Juicy handcrafted burgers', logo_url: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400', is_open: true, wait_time: 12, tags: ['halal'] },
   { id: 2, name: 'Sushi Sato', cuisine: 'Japanese', description: 'Authentic Japanese sushi', logo_url: 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=400', is_open: true, wait_time: 18, tags: ['gluten_free'] },
-  { id: 3, name: 'Pizza Palace', cuisine: 'Italian', description: 'Wood fired Neapolitan pizza', logo_url: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=400', is_open: false, wait_time: 0, tags: ['vegetarian'] },
+  { id: 3, name: 'Pizza Palace', cuisine: 'Italian', description: 'Wood fired Neapolitan pizza', logo_url: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=400', is_open: true, wait_time: 0, tags: ['vegetarian'] },
   { id: 4, name: 'Green Bowl', cuisine: 'Healthy', description: 'Fresh salads and grain bowls', logo_url: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400', is_open: true, wait_time: 8, tags: ['vegan', 'gluten_free'] },
 ];
 

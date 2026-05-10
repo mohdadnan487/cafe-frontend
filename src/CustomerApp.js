@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000';
+const WS_URL = API_URL.replace('https', 'wss').replace('http', 'ws');
 
 const DIETARY_OPTIONS = [
   { id: 'vegan', label: '🌱 Vegan' },
@@ -68,6 +69,13 @@ export default function CustomerApp({ tableNumber }) {
   const [splitPeople, setSplitPeople] = useState(2);
   const [showSplit, setShowSplit] = useState(false);
   const [orderHistory, setOrderHistory] = useState([]);
+  const [groupId, setGroupId] = useState(null);
+  const [groupMembers, setGroupMembers] = useState([]);
+  const [myName, setMyName] = useState('');
+  const [showGroupModal, setShowGroupModal] = useState(false);
+  const [groupNameInput, setGroupNameInput] = useState('');
+  const [groupCodeInput, setGroupCodeInput] = useState('');
+  const [socket, setSocket] = useState(null);
 
   useEffect(() => {
     fetch(`${API_URL}/api/vendors`)
@@ -75,6 +83,55 @@ export default function CustomerApp({ tableNumber }) {
       .then(data => { if (data.length) setVendors(data); })
       .catch(() => {});
   }, []);
+
+  const connectWebSocket = (id, name, initialCart) => {
+    try {
+      const ws = new WebSocket(`${WS_URL}?groupId=${id}&name=${encodeURIComponent(name)}`);
+      ws.onmessage = (e) => {
+        const data = JSON.parse(e.data);
+        if (data.type === 'cart_updated' && data.updatedBy !== name) setCart(data.cart);
+        if (['member_joined', 'member_left', 'init'].includes(data.type)) setGroupMembers(data.members || []);
+        if (data.type === 'init' && data.cart?.length) setCart(data.cart);
+      };
+      ws.onopen = () => {
+        if (initialCart?.length) ws.send(JSON.stringify({ type: 'update_cart', cart: initialCart }));
+      };
+      setSocket(ws);
+      return ws;
+    } catch (err) {
+      return null;
+    }
+  };
+
+  const startGroupOrder = () => {
+    const name = groupNameInput.trim();
+    if (!name) return;
+    const id = Math.random().toString(36).substr(2, 6).toUpperCase();
+    setGroupId(id);
+    setMyName(name);
+    setGroupMembers([name]);
+    connectWebSocket(id, name, cart);
+    setShowGroupModal(false);
+    setGroupNameInput('');
+  };
+
+  const joinGroupOrder = () => {
+    const name = groupNameInput.trim();
+    const code = groupCodeInput.trim().toUpperCase();
+    if (!name || !code) return;
+    setGroupId(code);
+    setMyName(name);
+    connectWebSocket(code, name, []);
+    setShowGroupModal(false);
+    setGroupNameInput('');
+    setGroupCodeInput('');
+  };
+
+  const syncCart = (newCart) => {
+    if (socket && socket.readyState === 1) {
+      socket.send(JSON.stringify({ type: 'update_cart', cart: newCart }));
+    }
+  };
 
   const selectVendor = (vendor) => {
     if (!vendor.is_open) return;
@@ -91,16 +148,22 @@ export default function CustomerApp({ tableNumber }) {
   const addToCart = (item) => {
     setCart(prev => {
       const existing = prev.find(i => i.id === item.id && i.vendorId === selectedVendor.id);
-      if (existing) return prev.map(i => i.id === item.id && i.vendorId === selectedVendor.id ? {...i, quantity: i.quantity + 1} : i);
-      return [...prev, {...item, vendorId: selectedVendor.id, vendorName: selectedVendor.name, quantity: 1}];
+      const newCart = existing
+        ? prev.map(i => i.id === item.id && i.vendorId === selectedVendor.id ? {...i, quantity: i.quantity + 1} : i)
+        : [...prev, {...item, vendorId: selectedVendor.id, vendorName: selectedVendor.name, quantity: 1}];
+      syncCart(newCart);
+      return newCart;
     });
   };
 
   const removeFromCart = (itemId, vendorId) => {
     setCart(prev => {
       const existing = prev.find(i => i.id === itemId && i.vendorId === vendorId);
-      if (existing?.quantity === 1) return prev.filter(i => !(i.id === itemId && i.vendorId === vendorId));
-      return prev.map(i => i.id === itemId && i.vendorId === vendorId ? {...i, quantity: i.quantity - 1} : i);
+      const newCart = existing?.quantity === 1
+        ? prev.filter(i => !(i.id === itemId && i.vendorId === vendorId))
+        : prev.map(i => i.id === itemId && i.vendorId === vendorId ? {...i, quantity: i.quantity - 1} : i);
+      syncCart(newCart);
+      return newCart;
     });
   };
 
@@ -164,8 +227,8 @@ export default function CustomerApp({ tableNumber }) {
     page: { minHeight: '100vh', background: '#f8f9fa', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif', maxWidth: 480, margin: '0 auto' },
     header: { background: 'white', padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #f0f0f0', position: 'sticky', top: 0, zIndex: 100 },
     card: { background: 'white', borderRadius: 16, boxShadow: '0 2px 12px rgba(0,0,0,0.06)' },
-    primaryBtn: { width: '100%', padding: 18, background: 'linear-gradient(135deg, #2563eb, #8b5cf6)', color: 'white', border: 'none', borderRadius: 16, fontWeight: 800, fontSize: 17, cursor: 'pointer' },
-    secondaryBtn: { width: '100%', padding: 16, background: 'white', border: '2px solid #eee', borderRadius: 16, fontWeight: 700, fontSize: 15, cursor: 'pointer', color: '#999' },
+    primaryBtn: { width: '100%', padding: 16, background: 'linear-gradient(135deg, #2563eb, #8b5cf6)', color: 'white', border: 'none', borderRadius: 12, fontWeight: 800, fontSize: 15, cursor: 'pointer' },
+    secondaryBtn: { width: '100%', padding: 14, background: 'white', border: '2px solid #eee', borderRadius: 12, fontWeight: 700, fontSize: 14, cursor: 'pointer', color: '#999' },
   };
 
   return (
@@ -188,12 +251,12 @@ export default function CustomerApp({ tableNumber }) {
             <div style={{fontSize: 11, color: '#999'}}>Table {tableNumber}</div>
           </div>
         </div>
-        <div style={{display: 'flex', gap: 6, alignItems: 'center'}}>
+        <div style={{display: 'flex', gap: 6}}>
           {view === 'menu' && (
-            <button style={{background: '#fff3f3', border: 'none', borderRadius: 20, padding: '6px 14px', fontSize: 12, fontWeight: 700, color: '#e53e3e', cursor: 'pointer'}} onClick={callWaiter}>👋 Waiter</button>
+            <button onClick={callWaiter} style={{background: '#fff3f3', border: 'none', borderRadius: 20, padding: '6px 14px', fontSize: 12, fontWeight: 700, color: '#e53e3e', cursor: 'pointer'}}>👋 Waiter</button>
           )}
           {view === 'vendors' && (
-            <button style={{background: '#f0f4ff', border: 'none', borderRadius: 20, padding: '6px 14px', fontSize: 12, fontWeight: 700, color: '#2563eb', cursor: 'pointer'}} onClick={() => setShowDietaryModal(true)}>🌱 Diet</button>
+            <button onClick={() => setShowDietaryModal(true)} style={{background: '#f0f4ff', border: 'none', borderRadius: 20, padding: '6px 14px', fontSize: 12, fontWeight: 700, color: '#2563eb', cursor: 'pointer'}}>🌱 Diet</button>
           )}
         </div>
       </div>
@@ -208,9 +271,8 @@ export default function CustomerApp({ tableNumber }) {
             <div style={{color: '#999', fontSize: 13, marginBottom: 20, textAlign: 'center'}}>Menu will auto-filter based on your preferences</div>
             {DIETARY_OPTIONS.map(opt => (
               <button key={opt.id} onClick={() => setDietaryProfile(prev => prev.includes(opt.id) ? prev.filter(d => d !== opt.id) : [...prev, opt.id])}
-                style={{width: '100%', padding: '14px', background: dietaryProfile.includes(opt.id) ? '#f0f4ff' : 'white', border: `2px solid ${dietaryProfile.includes(opt.id) ? '#2563eb' : '#f0f0f0'}`, borderRadius: 12, fontWeight: 700, fontSize: 15, cursor: 'pointer', marginBottom: 8, textAlign: 'left', color: dietaryProfile.includes(opt.id) ? '#2563eb' : '#333', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                {opt.label}
-                {dietaryProfile.includes(opt.id) && <span>✓</span>}
+                style={{width: '100%', padding: 14, background: dietaryProfile.includes(opt.id) ? '#f0f4ff' : 'white', border: `2px solid ${dietaryProfile.includes(opt.id) ? '#2563eb' : '#f0f0f0'}`, borderRadius: 12, fontWeight: 700, fontSize: 15, cursor: 'pointer', marginBottom: 8, textAlign: 'left', color: dietaryProfile.includes(opt.id) ? '#2563eb' : '#333', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                {opt.label}{dietaryProfile.includes(opt.id) && <span>✓</span>}
               </button>
             ))}
             <button onClick={() => setShowDietaryModal(false)} style={{...s.primaryBtn, marginTop: 8}}>Save Preferences</button>
@@ -218,15 +280,65 @@ export default function CustomerApp({ tableNumber }) {
         </div>
       )}
 
+      {/* GROUP ORDER MODAL */}
+      {showGroupModal && (
+        <div style={{position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 300, display: 'flex', alignItems: 'flex-end'}}>
+          <div style={{background: 'white', borderRadius: '20px 20px 0 0', padding: 24, width: '100%', maxWidth: 480, margin: '0 auto'}}>
+            <div style={{fontWeight: 800, fontSize: 18, marginBottom: 4, textAlign: 'center'}}>👥 Group Order</div>
+            <div style={{color: '#999', fontSize: 13, marginBottom: 20, textAlign: 'center'}}>Order together with friends at your table</div>
+
+            <div style={{fontWeight: 700, fontSize: 13, color: '#666', marginBottom: 6}}>Your name</div>
+            <input placeholder="Enter your name" value={groupNameInput} onChange={e => setGroupNameInput(e.target.value)}
+              style={{width: '100%', padding: '12px 14px', border: '2px solid #f0f0f0', borderRadius: 10, fontSize: 14, marginBottom: 16, boxSizing: 'border-box'}} />
+
+            <button onClick={startGroupOrder} style={{...s.primaryBtn, marginBottom: 16}}>🚀 Start New Group Order</button>
+
+            <div style={{display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16}}>
+              <div style={{flex: 1, height: 1, background: '#f0f0f0'}} />
+              <div style={{fontSize: 13, color: '#999'}}>or join existing</div>
+              <div style={{flex: 1, height: 1, background: '#f0f0f0'}} />
+            </div>
+
+            <input placeholder="Enter group code (e.g. ABC123)" value={groupCodeInput} onChange={e => setGroupCodeInput(e.target.value.toUpperCase())}
+              style={{width: '100%', padding: '12px 14px', border: '2px solid #f0f0f0', borderRadius: 10, fontSize: 14, marginBottom: 12, boxSizing: 'border-box', letterSpacing: 2, fontWeight: 700}} />
+
+            <button onClick={joinGroupOrder} style={{...s.secondaryBtn, color: '#2563eb', border: '2px solid #2563eb', marginBottom: 12}}>Join Group Order</button>
+            <button onClick={() => setShowGroupModal(false)} style={s.secondaryBtn}>Cancel</button>
+          </div>
+        </div>
+      )}
+
       {/* VENDORS */}
       {view === 'vendors' && (
         <div style={{padding: 16}}>
-          {dietaryProfile.length > 0 && (
-            <div style={{background: '#f0f4ff', borderRadius: 12, padding: '10px 14px', marginBottom: 16, fontSize: 13, color: '#2563eb', fontWeight: 600, display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-              <span>🌱 Filtering: {dietaryProfile.join(', ')}</span>
-              <button onClick={() => setDietaryProfile([])} style={{background: 'none', border: 'none', color: '#2563eb', fontWeight: 800, cursor: 'pointer', fontSize: 16}}>×</button>
-            </div>
-          )}
+
+          {/* GROUP ORDER BANNER */}
+          <div style={{...s.card, padding: 16, marginBottom: 16, background: groupId ? 'linear-gradient(135deg, #f0f4ff, #f5f0ff)' : 'white', border: groupId ? '2px solid #2563eb' : 'none'}}>
+            {!groupId ? (
+              <div>
+                <div style={{fontWeight: 800, fontSize: 15, marginBottom: 4}}>👥 Group Order</div>
+                <div style={{fontSize: 13, color: '#666', marginBottom: 12}}>Order together with friends at your table — everyone adds items, one checkout!</div>
+                <button onClick={() => setShowGroupModal(true)} style={s.primaryBtn}>Start or Join Group Order</button>
+              </div>
+            ) : (
+              <div>
+                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8}}>
+                  <div style={{fontWeight: 800, fontSize: 15, color: '#2563eb'}}>👥 Group Order Active</div>
+                  <div style={{background: '#2563eb', color: 'white', padding: '4px 12px', borderRadius: 20, fontSize: 13, fontWeight: 800, letterSpacing: 1}}>{groupId}</div>
+                </div>
+                <div style={{fontSize: 13, color: '#666', marginBottom: 10}}>Share this code with friends at your table</div>
+                <div style={{display: 'flex', gap: 6, flexWrap: 'wrap'}}>
+                  {groupMembers.map((m, i) => (
+                    <div key={i} style={{background: m === myName ? '#2563eb' : 'white', color: m === myName ? 'white' : '#2563eb', padding: '4px 12px', borderRadius: 20, fontSize: 12, fontWeight: 700, border: '2px solid #2563eb'}}>
+                      {m} {m === myName ? '(you)' : ''}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* ORDER AGAIN */}
           {orderHistory.length > 0 && (
             <div style={{...s.card, padding: 16, marginBottom: 16}}>
               <div style={{fontWeight: 800, fontSize: 14, marginBottom: 8}}>🕐 Order Again?</div>
@@ -240,7 +352,16 @@ export default function CustomerApp({ tableNumber }) {
               </div>
             </div>
           )}
+
+          {dietaryProfile.length > 0 && (
+            <div style={{background: '#f0f4ff', borderRadius: 12, padding: '10px 14px', marginBottom: 16, fontSize: 13, color: '#2563eb', fontWeight: 600, display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+              <span>🌱 Filtering: {dietaryProfile.join(', ')}</span>
+              <button onClick={() => setDietaryProfile([])} style={{background: 'none', border: 'none', color: '#2563eb', fontWeight: 800, cursor: 'pointer', fontSize: 16}}>×</button>
+            </div>
+          )}
+
           <p style={{color: '#999', fontSize: 13, marginBottom: 16, textAlign: 'center'}}>Choose where to order from</p>
+
           {vendors.map(vendor => (
             <div key={vendor.id} onClick={() => selectVendor(vendor)}
               style={{...s.card, marginBottom: 16, overflow: 'hidden', cursor: vendor.is_open ? 'pointer' : 'default', opacity: vendor.is_open ? 1 : 0.7}}>
@@ -280,6 +401,11 @@ export default function CustomerApp({ tableNumber }) {
               </button>
             ))}
           </div>
+          {groupId && (
+            <div style={{background: '#f0f4ff', padding: '10px 16px', fontSize: 13, color: '#2563eb', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8}}>
+              👥 Group: {groupMembers.join(', ')} — adding to shared cart
+            </div>
+          )}
           {Object.entries(groupedMenu).map(([category, items]) => (
             <div key={category}>
               <div style={{padding: '14px 16px 8px', fontWeight: 800, fontSize: 14, color: '#1a1a1a', background: '#f8f9fa', borderBottom: '1px solid #eee'}}>{category}</div>
@@ -327,6 +453,11 @@ export default function CustomerApp({ tableNumber }) {
       {/* CART */}
       {view === 'cart' && (
         <div style={{padding: 16}}>
+          {groupId && (
+            <div style={{background: '#f0f4ff', borderRadius: 12, padding: '12px 16px', marginBottom: 16, fontSize: 13, color: '#2563eb', fontWeight: 600}}>
+              👥 Group Order · {groupMembers.length} people · Code: {groupId}
+            </div>
+          )}
           {Object.entries(cartByVendor).map(([vendorId, { vendorName, items }]) => (
             <div key={vendorId} style={{...s.card, marginBottom: 16, overflow: 'hidden'}}>
               <div style={{padding: '12px 16px', background: '#f8f9fa', borderBottom: '1px solid #f0f0f0', fontWeight: 800, fontSize: 14, color: '#2563eb'}}>🍽️ {vendorName}</div>

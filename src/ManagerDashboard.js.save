@@ -1,0 +1,165 @@
+    setPdfFile(file);
+    setUploading(true);
+
+    const formData = new FormData();
+    formData.append('pdf', file);
+
+    try {
+      const res = await fetch(`${API_URL}/api/upload-menu`, {
+        method: 'POST',
+        body: formData
+      });
+
+      if (res.ok) {
+        setMessage('✅ Menu PDF uploaded successfully!');
+        setPdfFile(null);
+      } else {
+        setMessage('❌ Failed to upload PDF');
+      }
+    } catch (err) {
+      setMessage('❌ Upload error: ' + err.message);
+    }
+    setUploading(false);
+    setTimeout(() => setMessage(''), 3000);
+  };
+
+  const avgRating = (stats.avg_rating || 0).toFixed(1);
+
+  return (
+    <div className="manager-dashboard">
+      {/* Header */}
+      <div className="manager-header">
+        <button className="back-btn" onClick={onBack}>← Back</button>
+        <h1>⚙️ Manager Dashboard</h1>
+      </div>
+
+      {/* Quick Stats */}
+      <div className="stats-grid">
+        <div className="stat-card">
+          <div className="stat-number">{stats.pending}</div>
+          <div className="stat-name">Pending Requests</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-number">{stats.completed_today}</div>
+          <div className="stat-name">Completed Today</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-number">{avgRating}⭐</div>
+          <div className="stat-name">Avg Rating</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-number">{reviews.length}</div>
+          <div className="stat-name">Total Reviews</div>
+        </div>
+      </div>
+
+      {/* Navigation */}
+      <div className="manager-nav">
+        <button
+          className={`manager-nav-btn ${currentView === 'menu' ? 'active' : ''}`}
+          onClick={() => setCurrentView('menu')}
+        >
+          📄 Menu Upload
+        </button>
+        <button
+          className={`manager-nav-btn ${currentView === 'reviews' ? 'active' : ''}`}
+          onClick={() => setCurrentView('reviews')}
+        >
+          ⭐ Reviews
+        </button>
+        <button
+          className={`manager-nav-btn ${currentView === 'requests' ? 'active' : ''}`}
+          onClick={() => setCurrentView('requests')}
+        >
+          📋 Requests
+        </button>
+      </div>
+
+      {/* Message Alert */}
+      {message && <div className={`alert ${message.includes('✅') ? 'success' : 'error'}`}>{message}</div>}
+
+      {/* Content */}
+      <div className="manager-content">
+        {/* MENU UPLOAD */}
+        {currentView === 'menu' && (
+          <div className="menu-upload-section">
+            <h2>Upload Menu PDF</h2>
+            <p>Replace your cafe menu with a new PDF file</p>
+            
+            <div className="upload-box">
+              <div className="upload-icon">📑</div>
+              <label className="file-input-label">
+                <input
+                  type="file"
+                  accept=".pdf"
+                  onChange={handlePdfUpload}
+                  disabled={uploading}
+                />
+                <span className="upload-text">
+                  {uploading ? 'Uploading...' : 'Click to upload or drag PDF here'}
+                </span>
+              </label>
+              {pdfFile && (
+                <div className="file-name">
+                  ✓ {pdfFile.name}
+                </div>
+              )}
+            </div>
+
+            <div className="upload-info">
+              <h3>📌 How Customers See It:</h3>
+              <p>When customers click "Menu" in the app, they'll see your PDF menu.</p>
+              <ul>
+                <li>✓ Works on mobile and desktop</li>
+                <li>✓ Customers can zoom and search</li>
+                <li>✓ No ordering through app (as requested)</li>
+              </ul>
+            </div>
+          </div>
+        )}
+
+        {/* REVIEWS */}
+        {currentView === 'reviews' && (
+          <div className="reviews-section">
+            <h2>Customer Reviews</h2>
+            {reviews.length === 0 ? (
+              <div className="empty">No reviews yet</div>
+            ) : (
+              <div className="reviews-list">
+                {reviews.map((review, idx) => (
+                  <div key={idx} className="review-item">
+                    <div className="review-top">
+                      <div className="review-stars">{'⭐'.repeat(review.rating)}</div>
+                      <div className="review-table">Table {review.table_number}</div>
+                    </div>
+                    {review.comment && <div className="review-text">"{review.comment}"</div>}
+                    <div className="review-time">{new Date(review.created_at).toLocaleDateString()}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* REQUESTS */}
+        {currentView === 'requests' && (
+          <div className="requests-section">
+            <h2>Service Requests</h2>
+            {requests.length === 0 ? (
+              <div className="empty">No pending requests</div>
+            ) : (
+              <div className="requests-list">
+                {requests.map((req) => (
+                  <div key={req.id} className="request-item">
+                    <div className="req-type">{req.request_type}</div>
+                    <div className="req-table">Table {req.table_number}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

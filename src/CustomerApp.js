@@ -1,172 +1,53 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000';
 
-const TRANSLATIONS = {
-  en: {
-    title: 'The Food Quarter',
-    chooseVendor: 'Choose where to order from',
-    callWaiter: 'Call Waiter',
-    viewCart: 'View Cart',
-    yourCart: 'Your Cart',
-    checkout: 'Checkout',
-    orderTracking: 'Order Tracking',
-    placeOrder: 'Place Order',
-    addMore: 'Add More Items',
-    total: 'Total',
-    subtotal: 'Subtotal',
-    serviceFee: 'Service fee',
-    payNow: 'Pay',
-    orderPlaced: 'Order Placed!',
-    beingPrepared: 'Being Prepared',
-    orderReady: 'Order Ready!',
-    orderAgain: 'Order Again?',
-    dietaryProfile: 'Dietary Profile',
-    filters: 'Filters',
-    allItems: 'All Items',
-    open: 'Open',
-    closed: 'Closed',
-    waitTime: 'min wait',
-    mostOrdered: '🔥 Most Ordered',
-    splitBill: 'Split Bill',
-    paymentMethod: 'Payment Method',
-    proceedPayment: 'Proceed to Payment',
-  },
-  ar: {
-    title: 'ذا فود كوارتر',
-    chooseVendor: 'اختر من أين تطلب',
-    callWaiter: 'استدعاء النادل',
-    viewCart: 'عرض السلة',
-    yourCart: 'سلتك',
-    checkout: 'الدفع',
-    orderTracking: 'تتبع الطلب',
-    placeOrder: 'تقديم الطلب',
-    addMore: 'إضافة المزيد',
-    total: 'المجموع',
-    subtotal: 'المجموع الفرعي',
-    serviceFee: 'رسوم الخدمة',
-    payNow: 'ادفع',
-    orderPlaced: 'تم تقديم الطلب!',
-    beingPrepared: 'جاري التحضير',
-    orderReady: 'الطلب جاهز!',
-    orderAgain: 'اطلب مرة أخرى؟',
-    dietaryProfile: 'النظام الغذائي',
-    filters: 'تصفية',
-    allItems: 'جميع العناصر',
-    open: 'مفتوح',
-    closed: 'مغلق',
-    waitTime: 'دقيقة انتظار',
-    mostOrdered: '🔥 الأكثر طلباً',
-    splitBill: 'تقسيم الفاتورة',
-    paymentMethod: 'طريقة الدفع',
-    proceedPayment: 'المتابعة للدفع',
-  },
-  fr: {
-    title: 'The Food Quarter',
-    chooseVendor: 'Choisissez où commander',
-    callWaiter: 'Appeler le serveur',
-    viewCart: 'Voir le panier',
-    yourCart: 'Votre panier',
-    checkout: 'Paiement',
-    orderTracking: 'Suivi de commande',
-    placeOrder: 'Passer la commande',
-    addMore: 'Ajouter plus',
-    total: 'Total',
-    subtotal: 'Sous-total',
-    serviceFee: 'Frais de service',
-    payNow: 'Payer',
-    orderPlaced: 'Commande passée!',
-    beingPrepared: 'En préparation',
-    orderReady: 'Commande prête!',
-    orderAgain: 'Commander à nouveau?',
-    dietaryProfile: 'Profil alimentaire',
-    filters: 'Filtres',
-    allItems: 'Tous les articles',
-    open: 'Ouvert',
-    closed: 'Fermé',
-    waitTime: 'min d\'attente',
-    mostOrdered: '🔥 Plus commandé',
-    splitBill: 'Partager l\'addition',
-    paymentMethod: 'Mode de paiement',
-    proceedPayment: 'Procéder au paiement',
-  },
-  ur: {
-    title: 'دی فوڈ کوارٹر',
-    chooseVendor: 'آرڈر کہاں سے دینا ہے',
-    callWaiter: 'ویٹر کو بلائیں',
-    viewCart: 'کارٹ دیکھیں',
-    yourCart: 'آپ کا کارٹ',
-    checkout: 'چیک آؤٹ',
-    orderTracking: 'آرڈر ٹریکنگ',
-    placeOrder: 'آرڈر دیں',
-    addMore: 'مزید شامل کریں',
-    total: 'کل',
-    subtotal: 'ذیلی کل',
-    serviceFee: 'سروس فیس',
-    payNow: 'ادائیگی',
-    orderPlaced: 'آرڈر دے دیا گیا!',
-    beingPrepared: 'تیار ہو رہا ہے',
-    orderReady: 'آرڈر تیار ہے!',
-    orderAgain: 'دوبارہ آرڈر کریں؟',
-    dietaryProfile: 'غذائی پروفائل',
-    filters: 'فلٹر',
-    allItems: 'تمام اشیاء',
-    open: 'کھلا',
-    closed: 'بند',
-    waitTime: 'منٹ انتظار',
-    mostOrdered: '🔥 سب سے زیادہ آرڈر',
-    splitBill: 'بل تقسیم کریں',
-    paymentMethod: 'ادائیگی کا طریقہ',
-    proceedPayment: 'ادائیگی کی طرف',
-  }
-};
-
 const DIETARY_OPTIONS = [
-  { id: 'vegan', label: '🌱 Vegan', labelAr: '🌱 نباتي', labelFr: '🌱 Vegan', labelUr: '🌱 سبزی خور' },
-  { id: 'vegetarian', label: '🥗 Vegetarian', labelAr: '🥗 نباتي', labelFr: '🥗 Végétarien', labelUr: '🥗 سبزی' },
-  { id: 'gluten_free', label: '🌾 Gluten Free', labelAr: '🌾 خالي من الجلوتين', labelFr: '🌾 Sans gluten', labelUr: '🌾 گلوٹن فری' },
-  { id: 'halal', label: '☪️ Halal', labelAr: '☪️ حلال', labelFr: '☪️ Halal', labelUr: '☪️ حلال' },
-  { id: 'nut_free', label: '🥜 Nut Free', labelAr: '🥜 خالي من المكسرات', labelFr: '🥜 Sans noix', labelUr: '🥜 بغیر میوہ' },
+  { id: 'vegan', label: '🌱 Vegan' },
+  { id: 'vegetarian', label: '🥗 Vegetarian' },
+  { id: 'gluten_free', label: '🌾 Gluten Free' },
+  { id: 'halal', label: '☪️ Halal' },
+  { id: 'nut_free', label: '🥜 Nut Free' },
 ];
 
 const DUMMY_VENDORS = [
   { id: 1, name: 'Burger Bros', cuisine: 'American', description: 'Juicy handcrafted burgers', logo_url: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400', is_open: true, wait_time: 12, tags: ['halal'] },
   { id: 2, name: 'Sushi Sato', cuisine: 'Japanese', description: 'Authentic Japanese sushi', logo_url: 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=400', is_open: true, wait_time: 18, tags: ['gluten_free'] },
-  { id: 3, name: 'Pizza Palace', cuisine: 'Italian', description: 'Wood fired Neapolitan pizza', logo_url: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=400', is_open: false, wait_time: 0, tags: ['vegetarian'] },
+  { id: 3, name: 'Pizza Palace', cuisine: 'Italian', description: 'Wood fired Neapolitan pizza', logo_url: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=400', is_open: true, wait_time: 20, tags: ['vegetarian'] },
   { id: 4, name: 'Green Bowl', cuisine: 'Healthy', description: 'Fresh salads and grain bowls', logo_url: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400', is_open: true, wait_time: 8, tags: ['vegan', 'gluten_free'] },
 ];
 
 const DUMMY_MENUS = {
   1: [
-    { id: 1, name: 'Classic Burger', description: 'Beef patty, lettuce, tomato, cheese', price: 9.99, category: 'Burgers', image_url: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400', tags: ['halal'], orders_count: 245, is_popular: true },
-    { id: 2, name: 'Double Smash', description: 'Double beef smash patty with special sauce', price: 12.99, category: 'Burgers', image_url: 'https://images.unsplash.com/photo-1553979459-d2229ba7433b?w=400', tags: ['halal'], orders_count: 189, is_popular: true },
-    { id: 3, name: 'Chicken Burger', description: 'Crispy fried chicken with coleslaw', price: 10.99, category: 'Burgers', image_url: 'https://images.unsplash.com/photo-1606755962773-d324e0a13086?w=400', tags: ['halal'], orders_count: 132 },
-    { id: 4, name: 'Veggie Burger', description: 'Plant-based patty with avocado', price: 9.49, category: 'Burgers', image_url: 'https://images.unsplash.com/photo-1520072959219-c595dc870360?w=400', tags: ['vegan', 'vegetarian'], orders_count: 87 },
-    { id: 5, name: 'Cheese Fries', description: 'Crispy fries with melted cheese sauce', price: 4.99, category: 'Sides', image_url: 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=400', tags: ['vegetarian'], orders_count: 312, is_popular: true },
-    { id: 6, name: 'Onion Rings', description: 'Golden crispy onion rings', price: 3.99, category: 'Sides', image_url: 'https://images.unsplash.com/photo-1639024471283-03518883512d?w=400', tags: ['vegan'], orders_count: 98 },
-    { id: 7, name: 'Chocolate Shake', description: 'Thick creamy chocolate milkshake', price: 5.99, category: 'Drinks', image_url: 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=400', tags: ['vegetarian'], orders_count: 201 },
-    { id: 8, name: 'Lemonade', description: 'Fresh squeezed lemonade', price: 3.49, category: 'Drinks', image_url: 'https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=400', tags: ['vegan', 'gluten_free'], orders_count: 156 },
+    { id: 1, name: 'Classic Burger', description: 'Beef patty, lettuce, tomato, cheese', price: 9.99, category: 'Burgers', image_url: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400', tags: ['halal'], is_popular: true },
+    { id: 2, name: 'Double Smash', description: 'Double beef smash patty with special sauce', price: 12.99, category: 'Burgers', image_url: 'https://images.unsplash.com/photo-1553979459-d2229ba7433b?w=400', tags: ['halal'], is_popular: true },
+    { id: 3, name: 'Chicken Burger', description: 'Crispy fried chicken with coleslaw', price: 10.99, category: 'Burgers', image_url: 'https://images.unsplash.com/photo-1606755962773-d324e0a13086?w=400', tags: ['halal'] },
+    { id: 4, name: 'Veggie Burger', description: 'Plant-based patty with avocado', price: 9.49, category: 'Burgers', image_url: 'https://images.unsplash.com/photo-1520072959219-c595dc870360?w=400', tags: ['vegan', 'vegetarian'] },
+    { id: 5, name: 'Cheese Fries', description: 'Crispy fries with melted cheese sauce', price: 4.99, category: 'Sides', image_url: 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=400', tags: ['vegetarian'], is_popular: true },
+    { id: 6, name: 'Onion Rings', description: 'Golden crispy onion rings', price: 3.99, category: 'Sides', image_url: 'https://images.unsplash.com/photo-1639024471283-03518883512d?w=400', tags: ['vegan'] },
+    { id: 7, name: 'Chocolate Shake', description: 'Thick creamy chocolate milkshake', price: 5.99, category: 'Drinks', image_url: 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=400', tags: ['vegetarian'] },
+    { id: 8, name: 'Lemonade', description: 'Fresh squeezed lemonade', price: 3.49, category: 'Drinks', image_url: 'https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=400', tags: ['vegan', 'gluten_free'] },
   ],
   2: [
-    { id: 9, name: 'Salmon Nigiri', description: 'Fresh Atlantic salmon on seasoned rice', price: 8.99, category: 'Nigiri', image_url: 'https://images.unsplash.com/photo-1617196034183-421b4040ed20?w=400', tags: ['gluten_free'], orders_count: 178, is_popular: true },
-    { id: 10, name: 'Tuna Nigiri', description: 'Premium bluefin tuna on rice', price: 9.99, category: 'Nigiri', image_url: 'https://images.unsplash.com/photo-1617196034183-421b4040ed20?w=400', tags: ['gluten_free'], orders_count: 145 },
-    { id: 11, name: 'Dragon Roll', description: 'Shrimp tempura, avocado, cucumber', price: 13.99, category: 'Rolls', image_url: 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=400', tags: [], orders_count: 234, is_popular: true },
-    { id: 12, name: 'Rainbow Roll', description: 'California roll topped with assorted fish', price: 15.99, category: 'Rolls', image_url: 'https://images.unsplash.com/photo-1562802378-063ec186a863?w=400', tags: [], orders_count: 167 },
-    { id: 13, name: 'Veggie Roll', description: 'Avocado, cucumber, carrot, pickled radish', price: 9.99, category: 'Rolls', image_url: 'https://images.unsplash.com/photo-1562802378-063ec186a863?w=400', tags: ['vegan', 'gluten_free'], orders_count: 89 },
-    { id: 14, name: 'Miso Soup', description: 'Traditional Japanese miso with tofu', price: 3.99, category: 'Sides', image_url: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400', tags: ['vegan'], orders_count: 198 },
+    { id: 9, name: 'Salmon Nigiri', description: 'Fresh Atlantic salmon on seasoned rice', price: 8.99, category: 'Nigiri', image_url: 'https://images.unsplash.com/photo-1617196034183-421b4040ed20?w=400', tags: ['gluten_free'], is_popular: true },
+    { id: 10, name: 'Tuna Nigiri', description: 'Premium bluefin tuna on rice', price: 9.99, category: 'Nigiri', image_url: 'https://images.unsplash.com/photo-1617196034183-421b4040ed20?w=400', tags: ['gluten_free'] },
+    { id: 11, name: 'Dragon Roll', description: 'Shrimp tempura, avocado, cucumber', price: 13.99, category: 'Rolls', image_url: 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=400', tags: [], is_popular: true },
+    { id: 12, name: 'Rainbow Roll', description: 'California roll topped with assorted fish', price: 15.99, category: 'Rolls', image_url: 'https://images.unsplash.com/photo-1562802378-063ec186a863?w=400', tags: [] },
+    { id: 13, name: 'Veggie Roll', description: 'Avocado, cucumber, carrot, pickled radish', price: 9.99, category: 'Rolls', image_url: 'https://images.unsplash.com/photo-1562802378-063ec186a863?w=400', tags: ['vegan', 'gluten_free'] },
+    { id: 14, name: 'Miso Soup', description: 'Traditional Japanese miso with tofu', price: 3.99, category: 'Sides', image_url: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400', tags: ['vegan'] },
   ],
   3: [
-    { id: 15, name: 'Margherita', description: 'San Marzano tomato, mozzarella, fresh basil', price: 11.99, category: 'Pizzas', image_url: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=400', tags: ['vegetarian'], orders_count: 289, is_popular: true },
-    { id: 16, name: 'Pepperoni', description: 'Spicy pepperoni with mozzarella', price: 13.99, category: 'Pizzas', image_url: 'https://images.unsplash.com/photo-1628840042765-356cda07504e?w=400', tags: [], orders_count: 312, is_popular: true },
-    { id: 17, name: 'Truffle Mushroom', description: 'Wild mushrooms with truffle oil', price: 14.99, category: 'Pizzas', image_url: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400', tags: ['vegan'], orders_count: 145 },
-    { id: 18, name: 'Garlic Bread', description: 'Toasted sourdough with garlic butter', price: 4.99, category: 'Sides', image_url: 'https://images.unsplash.com/photo-1573140247632-f8fd74997d5c?w=400', tags: ['vegetarian'], orders_count: 234 },
-    { id: 19, name: 'Tiramisu', description: 'Classic Italian tiramisu dessert', price: 5.99, category: 'Desserts', image_url: 'https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=400', tags: ['vegetarian'], orders_count: 178 },
+    { id: 15, name: 'Margherita', description: 'San Marzano tomato, mozzarella, fresh basil', price: 11.99, category: 'Pizzas', image_url: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=400', tags: ['vegetarian'], is_popular: true },
+    { id: 16, name: 'Pepperoni', description: 'Spicy pepperoni with mozzarella', price: 13.99, category: 'Pizzas', image_url: 'https://images.unsplash.com/photo-1628840042765-356cda07504e?w=400', tags: [], is_popular: true },
+    { id: 17, name: 'Truffle Mushroom', description: 'Wild mushrooms with truffle oil', price: 14.99, category: 'Pizzas', image_url: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400', tags: ['vegan'] },
+    { id: 18, name: 'Garlic Bread', description: 'Toasted sourdough with garlic butter', price: 4.99, category: 'Sides', image_url: 'https://images.unsplash.com/photo-1573140247632-f8fd74997d5c?w=400', tags: ['vegetarian'] },
+    { id: 19, name: 'Tiramisu', description: 'Classic Italian tiramisu dessert', price: 5.99, category: 'Desserts', image_url: 'https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=400', tags: ['vegetarian'] },
   ],
   4: [
-    { id: 20, name: 'Quinoa Buddha Bowl', description: 'Quinoa, roasted veg, tahini dressing', price: 12.99, category: 'Bowls', image_url: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400', tags: ['vegan', 'gluten_free'], orders_count: 156, is_popular: true },
-    { id: 21, name: 'Falafel Wrap', description: 'Crispy falafel, hummus, fresh salad', price: 9.99, category: 'Wraps', image_url: 'https://images.unsplash.com/photo-1529006557810-274b9b2fc783?w=400', tags: ['vegan'], orders_count: 134 },
-    { id: 22, name: 'Acai Bowl', description: 'Acai blend, granola, fresh fruit', price: 10.99, category: 'Bowls', image_url: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400', tags: ['vegan', 'gluten_free'], orders_count: 98 },
-    { id: 23, name: 'Green Smoothie', description: 'Spinach, banana, almond milk, dates', price: 6.99, category: 'Drinks', image_url: 'https://images.unsplash.com/photo-1610970881699-44a5587cabec?w=400', tags: ['vegan', 'gluten_free'], orders_count: 167 },
+    { id: 20, name: 'Quinoa Buddha Bowl', description: 'Quinoa, roasted veg, tahini dressing', price: 12.99, category: 'Bowls', image_url: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400', tags: ['vegan', 'gluten_free'], is_popular: true },
+    { id: 21, name: 'Falafel Wrap', description: 'Crispy falafel, hummus, fresh salad', price: 9.99, category: 'Wraps', image_url: 'https://images.unsplash.com/photo-1529006557810-274b9b2fc783?w=400', tags: ['vegan'] },
+    { id: 22, name: 'Acai Bowl', description: 'Acai blend, granola, fresh fruit', price: 10.99, category: 'Bowls', image_url: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400', tags: ['vegan', 'gluten_free'] },
+    { id: 23, name: 'Green Smoothie', description: 'Spinach, banana, almond milk, dates', price: 6.99, category: 'Drinks', image_url: 'https://images.unsplash.com/photo-1610970881699-44a5587cabec?w=400', tags: ['vegan', 'gluten_free'] },
   ],
 };
 
@@ -175,7 +56,7 @@ export default function CustomerApp({ tableNumber }) {
   const [vendors, setVendors] = useState(DUMMY_VENDORS);
   const [selectedVendor, setSelectedVendor] = useState(null);
   const [menuItems, setMenuItems] = useState([]);
-  const [cart, setCart] = useState([]); // [{...item, vendorId, vendorName, quantity}]
+  const [cart, setCart] = useState([]);
   const [message, setMessage] = useState('');
   const [orderPlaced, setOrderPlaced] = useState(null);
   const [orderStatus, setOrderStatus] = useState('confirmed');
@@ -187,8 +68,6 @@ export default function CustomerApp({ tableNumber }) {
   const [splitPeople, setSplitPeople] = useState(2);
   const [showSplit, setShowSplit] = useState(false);
   const [orderHistory, setOrderHistory] = useState([]);
-  const progressRef = useRef(null);
-
 
   useEffect(() => {
     fetch(`${API_URL}/api/vendors`)
@@ -196,15 +75,6 @@ export default function CustomerApp({ tableNumber }) {
       .then(data => { if (data.length) setVendors(data); })
       .catch(() => {});
   }, []);
-
-  useEffect(() => {
-    if (orderStatus === 'confirmed') {
-      setOrderProgress(25);
-      setTimeout(() => { setOrderStatus('preparing'); setOrderProgress(50); }, 3000);
-      setTimeout(() => { setOrderProgress(75); }, 8000);
-      setTimeout(() => { setOrderStatus('ready'); setOrderProgress(100); }, 12000);
-    }
-  }, [orderStatus === 'confirmed' && view === 'tracking']);
 
   const selectVendor = (vendor) => {
     if (!vendor.is_open) return;
@@ -251,8 +121,9 @@ export default function CustomerApp({ tableNumber }) {
     setOrderStatus('confirmed');
     setOrderProgress(25);
     setView('tracking');
-
-    // Real API call
+    setTimeout(() => { setOrderStatus('preparing'); setOrderProgress(50); }, 3000);
+    setTimeout(() => { setOrderProgress(75); }, 8000);
+    setTimeout(() => { setOrderStatus('ready'); setOrderProgress(100); }, 12000);
     try {
       await fetch(`${API_URL}/api/orders`, {
         method: 'POST',
@@ -270,7 +141,7 @@ export default function CustomerApp({ tableNumber }) {
         body: JSON.stringify({ table_number: tableNumber, vendor_id: selectedVendor?.id })
       });
     } catch (err) {}
-    setMessage('👋 ' + t.callWaiter + '!');
+    setMessage('👋 Waiter called! Someone will be with you shortly.');
     setTimeout(() => setMessage(''), 4000);
   };
 
@@ -290,9 +161,8 @@ export default function CustomerApp({ tableNumber }) {
   }, {});
 
   const s = {
-    page: { minHeight: '100vh', background: '#f8f9fa', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif', maxWidth: 480, margin: '0 auto', direction: isRTL ? 'rtl' : 'ltr' },
-    header: { background: 'white', padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #f0f0f0', position: 'sticky', top: 0, zIndex: 100, gap: 8 },
-    btn: (bg, color) => ({ background: bg, border: 'none', borderRadius: 20, padding: '6px 14px', fontSize: 12, fontWeight: 700, color, cursor: 'pointer' }),
+    page: { minHeight: '100vh', background: '#f8f9fa', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif', maxWidth: 480, margin: '0 auto' },
+    header: { background: 'white', padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #f0f0f0', position: 'sticky', top: 0, zIndex: 100 },
     card: { background: 'white', borderRadius: 16, boxShadow: '0 2px 12px rgba(0,0,0,0.06)' },
     primaryBtn: { width: '100%', padding: 18, background: 'linear-gradient(135deg, #2563eb, #8b5cf6)', color: 'white', border: 'none', borderRadius: 16, fontWeight: 800, fontSize: 17, cursor: 'pointer' },
     secondaryBtn: { width: '100%', padding: 16, background: 'white', border: '2px solid #eee', borderRadius: 16, fontWeight: 700, fontSize: 15, cursor: 'pointer', color: '#999' },
@@ -308,22 +178,28 @@ export default function CustomerApp({ tableNumber }) {
             <button style={{background: 'none', border: 'none', fontSize: 20, cursor: 'pointer', padding: '4px 8px'}} onClick={() => {
               if (view === 'cart') setView('menu');
               else if (view === 'checkout') setView('cart');
-              else if (view === 'split') setView('cart');
               else { setView('vendors'); setSelectedVendor(null); }
             }}>←</button>
           )}
           <div>
-            <div style={{fontWeight: 800, fontSize: 16, color: '#1a1a1a'}}>{view === 'vendors' ? `🍽️ $The Food Quarter` : view === 'tracking' ? t.orderTracking : view === 'checkout' ? t.checkout : view === 'cart' || view === 'split' ? t.yourCart : selectedVendor?.name}</div>
+            <div style={{fontWeight: 800, fontSize: 16, color: '#1a1a1a'}}>
+              {view === 'vendors' ? '🍽️ The Food Quarter' : view === 'tracking' ? 'Order Tracking' : view === 'checkout' ? 'Checkout' : view === 'cart' ? 'Your Cart' : selectedVendor?.name}
+            </div>
             <div style={{fontSize: 11, color: '#999'}}>Table {tableNumber}</div>
           </div>
         </div>
         <div style={{display: 'flex', gap: 6, alignItems: 'center'}}>
-          {view === 'menu' && <button style={s.btn('#fff3f3', '#e53e3e')} onClick={callWaiter}>👋</button>}
-          {view === 'vendors' && <button style={s.btn('#f0f4ff', '#2563eb')} onClick={() => setShowDietaryModal(true)}>🌱</button>}
+          {view === 'menu' && (
+            <button style={{background: '#fff3f3', border: 'none', borderRadius: 20, padding: '6px 14px', fontSize: 12, fontWeight: 700, color: '#e53e3e', cursor: 'pointer'}} onClick={callWaiter}>👋 Waiter</button>
+          )}
+          {view === 'vendors' && (
+            <button style={{background: '#f0f4ff', border: 'none', borderRadius: 20, padding: '6px 14px', fontSize: 12, fontWeight: 700, color: '#2563eb', cursor: 'pointer'}} onClick={() => setShowDietaryModal(true)}>🌱 Diet</button>
+          )}
+        </div>
+      </div>
 
       {message && <div style={{background: '#d4edda', color: '#155724', padding: '10px 16px', fontSize: 14, fontWeight: 600, textAlign: 'center'}}>{message}</div>}
 
-     
       {/* DIETARY MODAL */}
       {showDietaryModal && (
         <div style={{position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 300, display: 'flex', alignItems: 'flex-end'}}>
@@ -344,17 +220,16 @@ export default function CustomerApp({ tableNumber }) {
 
       {/* VENDORS */}
       {view === 'vendors' && (
-        <div style={{padding: '16px'}}>
+        <div style={{padding: 16}}>
           {dietaryProfile.length > 0 && (
             <div style={{background: '#f0f4ff', borderRadius: 12, padding: '10px 14px', marginBottom: 16, fontSize: 13, color: '#2563eb', fontWeight: 600, display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
               <span>🌱 Filtering: {dietaryProfile.join(', ')}</span>
               <button onClick={() => setDietaryProfile([])} style={{background: 'none', border: 'none', color: '#2563eb', fontWeight: 800, cursor: 'pointer', fontSize: 16}}>×</button>
             </div>
           )}
-
           {orderHistory.length > 0 && (
             <div style={{...s.card, padding: 16, marginBottom: 16}}>
-              <div style={{fontWeight: 800, fontSize: 14, marginBottom: 10}}>🕐 {t.orderAgain}</div>
+              <div style={{fontWeight: 800, fontSize: 14, marginBottom: 8}}>🕐 Order Again?</div>
               <div style={{fontSize: 13, color: '#666', marginBottom: 8}}>{orderHistory[0].items.map(i => i.name).join(', ')}</div>
               <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
                 <span style={{fontWeight: 800, color: '#2563eb'}}>£{orderHistory[0].total.toFixed(2)}</span>
@@ -365,9 +240,7 @@ export default function CustomerApp({ tableNumber }) {
               </div>
             </div>
           )}
-
           <p style={{color: '#999', fontSize: 13, marginBottom: 16, textAlign: 'center'}}>Choose where to order from</p>
-
           {vendors.map(vendor => (
             <div key={vendor.id} onClick={() => selectVendor(vendor)}
               style={{...s.card, marginBottom: 16, overflow: 'hidden', cursor: vendor.is_open ? 'pointer' : 'default', opacity: vendor.is_open ? 1 : 0.7}}>
@@ -376,27 +249,17 @@ export default function CustomerApp({ tableNumber }) {
                 <div style={{position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.6), transparent)'}} />
                 <div style={{position: 'absolute', top: 12, right: 12}}>
                   <div style={{background: vendor.is_open ? '#38a169' : '#e53e3e', color: 'white', padding: '4px 12px', borderRadius: 20, fontSize: 12, fontWeight: 700}}>
-                    {vendor.is_open ? t.open : t.closed}
+                    {vendor.is_open ? 'Open' : 'Closed'}
                   </div>
                 </div>
                 <div style={{position: 'absolute', bottom: 12, left: 16, right: 16}}>
                   <div style={{color: 'white', fontWeight: 800, fontSize: 20}}>{vendor.name}</div>
                   <div style={{display: 'flex', gap: 8, marginTop: 4, alignItems: 'center'}}>
-                    <div style={{background: 'rgba(255,255,255,0.2)', color: 'white', padding: '3px 10px', borderRadius: 10, fontSize: 12, fontWeight: 600}}>{vendor.cuisine}</div>
+                    <div style={{background: 'rgba(255,255,255,0.2)', color: 'white', padding: '3px 10px', borderRadius: 10, fontSize: 12}}>{vendor.cuisine}</div>
                     {vendor.is_open && <div style={{color: 'rgba(255,255,255,0.9)', fontSize: 12}}>⏱ {vendor.wait_time} min wait</div>}
-                    {vendor.tags?.map(tag => (
-                      <div key={tag} style={{background: 'rgba(255,255,255,0.2)', color: 'white', padding: '3px 8px', borderRadius: 10, fontSize: 11}}>
-                        {DIETARY_OPTIONS.find(d => d.id === tag)?.label.split(' ')[0]}
-                      </div>
-                    ))}
                   </div>
                 </div>
               </div>
-              {!vendor.is_open && (
-                <div style={{padding: '12px 16px', background: '#fff5f5', textAlign: 'center', color: '#e53e3e', fontWeight: 700, fontSize: 14}}>
-                  Currently Closed — Opens at 11:00 AM
-                </div>
-              )}
             </div>
           ))}
         </div>
@@ -405,29 +268,25 @@ export default function CustomerApp({ tableNumber }) {
       {/* MENU */}
       {view === 'menu' && (
         <div style={{paddingBottom: cartCount > 0 ? 100 : 20}}>
-          {/* Vendor info bar */}
           <div style={{background: 'white', padding: '12px 16px', borderBottom: '1px solid #f0f0f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
             <div style={{fontSize: 13, color: '#666'}}>⏱ ~{selectedVendor?.wait_time} min wait</div>
             <div style={{fontSize: 13, color: '#38a169', fontWeight: 700}}>● Open</div>
           </div>
-
-          {/* Filters */}
           <div style={{background: 'white', borderBottom: '1px solid #f0f0f0', padding: '10px 16px', overflowX: 'auto', display: 'flex', gap: 8, whiteSpace: 'nowrap'}}>
-            {[{ id: 'all', label: t.allItems }, ...DIETARY_OPTIONS].map(filter => (
+            {[{ id: 'all', label: 'All Items' }, ...DIETARY_OPTIONS].map(filter => (
               <button key={filter.id} onClick={() => setActiveFilter(filter.id)}
                 style={{padding: '6px 14px', borderRadius: 20, border: 'none', background: activeFilter === filter.id ? '#2563eb' : '#f0f0f0', color: activeFilter === filter.id ? 'white' : '#666', fontWeight: 700, fontSize: 12, cursor: 'pointer', flexShrink: 0}}>
                 {filter.label}
               </button>
             ))}
           </div>
-
           {Object.entries(groupedMenu).map(([category, items]) => (
             <div key={category}>
               <div style={{padding: '14px 16px 8px', fontWeight: 800, fontSize: 14, color: '#1a1a1a', background: '#f8f9fa', borderBottom: '1px solid #eee'}}>{category}</div>
               {items.map(item => {
                 const cartItem = cart.find(i => i.id === item.id && i.vendorId === selectedVendor.id);
                 return (
-                  <div key={item.id} style={{background: 'white', padding: '14px 16px', display: 'flex', gap: 12, alignItems: 'flex-start', borderBottom: '1px solid #f5f5f5', position: 'relative'}}>
+                  <div key={item.id} style={{background: 'white', padding: '14px 16px', display: 'flex', gap: 12, alignItems: 'flex-start', borderBottom: '1px solid #f5f5f5'}}>
                     <div style={{flex: 1, minWidth: 0}}>
                       <div style={{display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3, flexWrap: 'wrap'}}>
                         <div style={{fontWeight: 700, fontSize: 15, color: '#1a1a1a'}}>{item.name}</div>
@@ -487,18 +346,15 @@ export default function CustomerApp({ tableNumber }) {
               ))}
             </div>
           ))}
-
           <div style={{...s.card, padding: 16, marginBottom: 16}}>
             <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: 8, fontSize: 14, color: '#999'}}><span>Subtotal</span><span>£{cartTotal.toFixed(2)}</span></div>
             <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: 8, fontSize: 14, color: '#999'}}><span>Service fee</span><span>£0.00</span></div>
             <div style={{height: 1, background: '#f0f0f0', margin: '12px 0'}} />
             <div style={{display: 'flex', justifyContent: 'space-between', fontWeight: 800, fontSize: 18}}><span>Total</span><span style={{color: '#2563eb'}}>£{cartTotal.toFixed(2)}</span></div>
           </div>
-
           <button onClick={() => setShowSplit(!showSplit)} style={{width: '100%', padding: 14, background: '#f0f9f0', border: '2px solid #c6f6d5', borderRadius: 12, fontWeight: 700, fontSize: 14, cursor: 'pointer', color: '#38a169', marginBottom: 12}}>
             💳 Split Bill
           </button>
-
           {showSplit && (
             <div style={{...s.card, padding: 16, marginBottom: 16}}>
               <div style={{fontWeight: 800, fontSize: 15, marginBottom: 12}}>Split between {splitPeople} people</div>
@@ -513,9 +369,8 @@ export default function CustomerApp({ tableNumber }) {
               </div>
             </div>
           )}
-
           <button onClick={() => setView('checkout')} style={{...s.primaryBtn, marginBottom: 10}}>Proceed to Payment →</button>
-          <button onClick={() => { setView('vendors'); }} style={s.secondaryBtn}>+ Order from another vendor</button>
+          <button onClick={() => setView('vendors')} style={s.secondaryBtn}>+ Order from another vendor</button>
         </div>
       )}
 
@@ -523,7 +378,7 @@ export default function CustomerApp({ tableNumber }) {
       {view === 'checkout' && (
         <div style={{padding: 16}}>
           <div style={{...s.card, padding: 16, marginBottom: 16}}>
-            <div style={{fontWeight: 800, fontSize: 16, marginBottom: 14}}>Select Payment Method</div>
+            <div style={{fontWeight: 800, fontSize: 16, marginBottom: 14}}>Payment Method</div>
             {[
               { id: 'card', icon: '💳', label: 'Credit / Debit Card' },
               { id: 'apple', icon: '🍎', label: 'Apple Pay' },
@@ -538,7 +393,6 @@ export default function CustomerApp({ tableNumber }) {
               </div>
             ))}
           </div>
-
           {paymentMethod === 'card' && (
             <div style={{...s.card, padding: 16, marginBottom: 16}}>
               <div style={{fontWeight: 800, fontSize: 15, marginBottom: 14}}>Card Details</div>
@@ -549,14 +403,12 @@ export default function CustomerApp({ tableNumber }) {
               </div>
             </div>
           )}
-
           <div style={{...s.card, padding: 16, marginBottom: 16}}>
             <div style={{display: 'flex', justifyContent: 'space-between', fontWeight: 800, fontSize: 18}}><span>Total</span><span style={{color: '#2563eb'}}>£{cartTotal.toFixed(2)}</span></div>
           </div>
-
           <button onClick={placeOrder} disabled={!paymentMethod}
             style={{...s.primaryBtn, background: paymentMethod ? 'linear-gradient(135deg, #2563eb, #8b5cf6)' : '#ccc', marginBottom: 10, cursor: paymentMethod ? 'pointer' : 'not-allowed'}}>
-            {paymentMethod ? `Pay £${cartTotal.toFixed(2)}` : "Select Payment Method"}
+            {paymentMethod ? `Pay £${cartTotal.toFixed(2)}` : 'Select Payment Method'}
           </button>
         </div>
       )}
@@ -566,36 +418,30 @@ export default function CustomerApp({ tableNumber }) {
         <div style={{padding: 16}}>
           <div style={{...s.card, padding: 24, textAlign: 'center', marginBottom: 16}}>
             <div style={{fontSize: 56, marginBottom: 12}}>{orderStatus === 'ready' ? '✅' : '👨‍🍳'}</div>
-            <div style={{fontWeight: 800, fontSize: 22, marginBottom: 4}}>{orderStatus === 'ready' ? t.orderReady : t.beingPrepared}</div>
+            <div style={{fontWeight: 800, fontSize: 22, marginBottom: 4}}>{orderStatus === 'ready' ? 'Order Ready!' : 'Being Prepared'}</div>
             <div style={{color: '#999', fontSize: 14, marginBottom: 16}}>{orderStatus === 'ready' ? 'Your food is on its way to your table!' : 'Freshly preparing your order...'}</div>
             <div style={{background: '#f0f4ff', borderRadius: 12, padding: '8px 20px', display: 'inline-block'}}>
               <span style={{fontWeight: 800, color: '#2563eb', fontSize: 18}}>Order #{orderPlaced}</span>
             </div>
           </div>
-
-          {/* Progress Bar */}
           <div style={{...s.card, padding: 20, marginBottom: 16}}>
             <div style={{height: 8, background: '#f0f0f0', borderRadius: 4, overflow: 'hidden', marginBottom: 20}}>
               <div style={{height: '100%', width: `${orderProgress}%`, background: 'linear-gradient(135deg, #2563eb, #8b5cf6)', borderRadius: 4, transition: 'width 1s ease'}} />
             </div>
             {[
-              { key: 'confirmed', label: 'Order Confirmed', icon: '✓', done: true },
-              { key: 'preparing', label: 'Being Prepared', icon: '👨‍🍳', done: ['preparing', 'ready', 'delivered'].includes(orderStatus) },
-              { key: 'ready', label: 'Ready for Delivery', icon: '🍽️', done: ['ready', 'delivered'].includes(orderStatus) },
-              { key: 'delivered', label: 'Delivered to Table', icon: '🎉', done: orderStatus === 'delivered' },
+              { key: 'confirmed', label: 'Order Confirmed', done: true },
+              { key: 'preparing', label: 'Being Prepared', done: ['preparing', 'ready', 'delivered'].includes(orderStatus) },
+              { key: 'ready', label: 'Ready for Delivery', done: ['ready', 'delivered'].includes(orderStatus) },
+              { key: 'delivered', label: 'Delivered to Table', done: orderStatus === 'delivered' },
             ].map((step, idx) => (
               <div key={step.key} style={{display: 'flex', alignItems: 'center', gap: 14, marginBottom: idx < 3 ? 16 : 0}}>
-                <div style={{width: 36, height: 36, borderRadius: 18, background: step.done ? '#2563eb' : '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: step.done ? 14 : 18, color: step.done ? 'white' : '#ccc', flexShrink: 0, transition: 'background 0.5s'}}>
-                  {step.done ? '✓' : step.icon}
+                <div style={{width: 36, height: 36, borderRadius: 18, background: step.done ? '#2563eb' : '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, color: step.done ? 'white' : '#ccc', flexShrink: 0, transition: 'background 0.5s'}}>
+                  {step.done ? '✓' : '○'}
                 </div>
-                <div style={{fontWeight: step.done ? 700 : 500, color: step.done ? '#1a1a1a' : '#ccc', flex: 1}}>{step.label}</div>
-                {step.key === 'preparing' && orderStatus === 'preparing' && (
-                  <div style={{fontSize: 12, color: '#2563eb', fontWeight: 700}}>~12 min</div>
-                )}
+                <div style={{fontWeight: step.done ? 700 : 500, color: step.done ? '#1a1a1a' : '#ccc'}}>{step.label}</div>
               </div>
             ))}
           </div>
-
           <button onClick={callWaiter} style={{width: '100%', padding: 16, background: '#fff3f3', border: 'none', borderRadius: 16, fontWeight: 700, fontSize: 15, cursor: 'pointer', color: '#e53e3e', marginBottom: 10}}>
             👋 Call Waiter
           </button>

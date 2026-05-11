@@ -80,7 +80,7 @@ export default function AdminApp({ onBack }) {
         </div>
         <div style={{flex: 1, padding: '0 20px 40px'}}>
           <div style={{background: '#fff', borderRadius: '0 0 20px 20px', padding: 28, border: '1px solid #F0EFED', borderTop: 'none'}}>
-            <button onClick={onBack} style={{background: '#F5F4F2', border: 'none', borderRadius: 10, padding: '8px 10px', cursor: 'pointer', display: 'flex', alignItems: 'center'}}><Icons.back /></button>
+
             <div style={{fontWeight: 700, fontSize: 20, marginBottom: 4, fontFamily: "'DM Serif Display', serif"}}>Admin Login</div>
             <div style={{color: '#9B9590', fontSize: 13, marginBottom: 24}}>Enter master password to continue</div>
             <div style={{...T.label, marginBottom: 6}}>Password</div>

@@ -94,8 +94,8 @@ const DUMMY_MENUS = {
     { id: 8, name: 'Lemonade', description: 'House-pressed lemonade, fresh mint', price: 3.49, category: 'Drinks', image_url: 'https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=300', tags: ['vegan', 'gluten_free'] },
   ],
   2: [
-    { id: 9, name: 'Salmon Nigiri', description: 'Hand-pressed sushi rice, fresh Atlantic salmon', price: 8.99, category: 'Nigiri', image_url: 'https://images.unsplash.com/photo-1617196034183-421b4040ed20?w=300', tags: ['gluten_free'], is_popular: true },
-    { id: 10, name: 'Tuna Nigiri', description: 'Premium bluefin tuna, wasabi', price: 9.99, category: 'Nigiri', image_url: 'https://images.unsplash.com/photo-1617196034183-421b4040ed20?w=300', tags: ['gluten_free'] },
+    { id: 9, name: 'Salmon Nigiri', description: 'Hand-pressed sushi rice, fresh Atlantic salmon', price: 8.99, category: 'Nigiri', image_url: 'https://images.unsplash.com/photo-1534482421-64566f976cfa?w=300', tags: ['gluten_free'], is_popular: true },
+    { id: 10, name: 'Tuna Nigiri', description: 'Premium bluefin tuna, wasabi', price: 9.99, category: 'Nigiri', image_url: 'https://images.unsplash.com/photo-1534482421-64566f976cfa?w=300', tags: ['gluten_free'] },
     { id: 11, name: 'Dragon Roll', description: 'Shrimp tempura, avocado, cucumber', price: 13.99, category: 'Rolls', image_url: 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=300', tags: [], is_popular: true },
     { id: 12, name: 'Rainbow Roll', description: 'California roll, assorted sashimi topping', price: 15.99, category: 'Rolls', image_url: 'https://images.unsplash.com/photo-1562802378-063ec186a863?w=300', tags: [] },
     { id: 13, name: 'Veggie Roll', description: 'Avocado, cucumber, carrot, pickled radish', price: 9.99, category: 'Rolls', image_url: 'https://images.unsplash.com/photo-1562802378-063ec186a863?w=300', tags: ['vegan', 'gluten_free'] },

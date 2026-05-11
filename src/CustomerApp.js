@@ -311,7 +311,7 @@ export default function CustomerApp({ tableNumber }) {
       {/* HEADER */}
       <div style={T.header}>
         <div style={{display: 'flex', alignItems: 'center', gap: 12}}>
-          {view !== 'vendors' && (
+          {(
             <button onClick={() => {
               if (view === 'cart') setView('menu');
               else if (view === 'checkout') setView('cart');

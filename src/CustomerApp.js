@@ -125,7 +125,7 @@ const css = `
   button { font-family: 'DM Sans', sans-serif; }
 `;
 
-export default function CustomerApp({ tableNumber }) {
+export default function CustomerApp({ tableNumber, onBack = () => window.history.back() }) {
   const [view, setView] = useState('vendors');
   const [vendors, setVendors] = useState(DUMMY_VENDORS);
   const [selectedVendor, setSelectedVendor] = useState(null);
@@ -311,7 +311,7 @@ export default function CustomerApp({ tableNumber }) {
       {/* HEADER */}
       <div style={T.header}>
         <div style={{display: 'flex', alignItems: 'center', gap: 12}}>
-          {(
+          {view !== 'vendors' ? (
             <button onClick={() => {
               if (view === 'cart') setView('menu');
               else if (view === 'checkout') setView('cart');

@@ -13,31 +13,20 @@ const DUMMY_REQUESTS = [
   { id: 1, table_number: 4, created_at: new Date(Date.now() - 90000).toISOString() },
   { id: 2, table_number: 9, created_at: new Date(Date.now() - 240000).toISOString() },
 ];
-
 const DUMMY_READY = [
   { id: 1045, table_number: 12, items: ['2× Cheese Fries', '1× Lemonade'], ready_at: new Date(Date.now() - 120000).toISOString() },
 ];
-
 const TABLE_STATUS = [
-  { id: 1, status: 'occupied', since: '14:23' },
-  { id: 2, status: 'empty' },
-  { id: 3, status: 'occupied', since: '14:31' },
-  { id: 4, status: 'waiter', since: '14:38' },
-  { id: 5, status: 'occupied', since: '14:15' },
-  { id: 6, status: 'empty' },
-  { id: 7, status: 'occupied', since: '14:29' },
-  { id: 8, status: 'empty' },
-  { id: 9, status: 'waiter', since: '14:41' },
-  { id: 10, status: 'occupied', since: '14:20' },
-  { id: 11, status: 'empty' },
-  { id: 12, status: 'occupied', since: '14:35' },
+  { id: 1, status: 'occupied', since: '14:23' }, { id: 2, status: 'empty' },
+  { id: 3, status: 'occupied', since: '14:31' }, { id: 4, status: 'waiter', since: '14:38' },
+  { id: 5, status: 'occupied', since: '14:15' }, { id: 6, status: 'empty' },
+  { id: 7, status: 'occupied', since: '14:29' }, { id: 8, status: 'empty' },
+  { id: 9, status: 'waiter', since: '14:41' }, { id: 10, status: 'occupied', since: '14:20' },
+  { id: 11, status: 'empty' }, { id: 12, status: 'occupied', since: '14:35' },
 ];
-
 const WAITERS = [
-  { id: 1, name: 'Sarah', avatar: 'S' },
-  { id: 2, name: 'James', avatar: 'J' },
-  { id: 3, name: 'Priya', avatar: 'P' },
-  { id: 4, name: 'Omar', avatar: 'O' },
+  { id: 1, name: 'Sarah', avatar: 'S' }, { id: 2, name: 'James', avatar: 'J' },
+  { id: 3, name: 'Priya', avatar: 'P' }, { id: 4, name: 'Omar', avatar: 'O' },
 ];
 
 const Icons = {
@@ -46,8 +35,21 @@ const Icons = {
   check: () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>,
 };
 
+const BackHeader = ({ onPress, title, subtitle, right }) => (
+  <div style={{background: '#fff', padding: '14px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #F0EFED', position: 'sticky', top: 0, zIndex: 100}}>
+    <button onClick={onPress} style={{background: '#F5F4F2', border: 'none', borderRadius: 10, padding: '8px 10px', cursor: 'pointer', display: 'flex', alignItems: 'center', flexShrink: 0}}>
+      <Icons.back />
+    </button>
+    <div style={{textAlign: 'center'}}>
+      {title && <div style={{fontWeight: 700, fontSize: 15, fontFamily: "'DM Serif Display', serif"}}>{title}</div>}
+      {subtitle && <div style={{fontSize: 11, color: '#9B9590', letterSpacing: 0.2}}>{subtitle}</div>}
+    </div>
+    <div>{right || <div style={{width: 38}} />}</div>
+  </div>
+);
+
 export default function WaiterStaffApp({ onBack }) {
-  const [step, setStep] = useState('select'); // select | pin | dashboard
+  const [step, setStep] = useState('select');
   const [selectedWaiter, setSelectedWaiter] = useState(null);
   const [pin, setPin] = useState('');
   const [pinError, setPinError] = useState('');
@@ -98,18 +100,18 @@ export default function WaiterStaffApp({ onBack }) {
     label: { fontSize: 11, fontWeight: 600, color: '#9B9590', letterSpacing: 0.6, textTransform: 'uppercase' },
   };
 
-  // STEP 1: SELECT WAITER
+  // STEP 1: SELECT
   if (step === 'select') {
     return (
-      <div style={{...T.page, display: 'flex', flexDirection: 'column'}}>
-        <div style={{background: '#1A1A1A', padding: '48px 24px 40px', textAlign: 'center'}}>
+      <div style={T.page}>
+        <BackHeader onPress={onBack} />
+        <div style={{background: '#1A1A1A', padding: '40px 24px 32px', textAlign: 'center'}}>
           <div style={{fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.4)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 12}}>The Food Quarter</div>
           <div style={{color: '#fff', fontWeight: 700, fontSize: 28, fontFamily: "'DM Serif Display', serif"}}>Waiter Login</div>
           <div style={{color: 'rgba(255,255,255,0.4)', fontSize: 13, marginTop: 6}}>Who's starting their shift?</div>
         </div>
-        <div style={{flex: 1, padding: '0 20px 40px'}}>
+        <div style={{padding: '0 20px 40px'}}>
           <div style={{background: '#fff', borderRadius: '0 0 20px 20px', padding: 24, border: '1px solid #F0EFED', borderTop: 'none'}}>
-            <button onClick={onBack} style={{background: '#F5F4F2', border: 'none', borderRadius: 10, padding: '8px 10px', cursor: 'pointer', display: 'flex', alignItems: 'center', marginBottom: 20}}><Icons.back /></button>
             <div style={{...T.label, marginBottom: 12}}>Select your name</div>
             <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16}}>
               {WAITERS.map(w => (
@@ -122,9 +124,7 @@ export default function WaiterStaffApp({ onBack }) {
             </div>
             <div style={{height: 1, background: '#F0EFED', marginBottom: 16}} />
             {!showCustom ? (
-              <button onClick={() => setShowCustom(true)} style={{...T.primaryBtn, background: '#F5F4F2', color: '#6B6560', border: 'none'}}>
-                + Enter a different name
-              </button>
+              <button onClick={() => setShowCustom(true)} style={{...T.primaryBtn, background: '#F5F4F2', color: '#6B6560'}}>+ Enter a different name</button>
             ) : (
               <div>
                 <div style={{...T.label, marginBottom: 6}}>Your name</div>
@@ -141,26 +141,21 @@ export default function WaiterStaffApp({ onBack }) {
   // STEP 2: PIN
   if (step === 'pin') {
     return (
-      <div style={{...T.page, display: 'flex', flexDirection: 'column'}}>
-        <div style={{background: '#1A1A1A', padding: '48px 24px 40px', textAlign: 'center'}}>
-          <div style={{width: 56, height: 56, borderRadius: 28, background: '#2A2A2A', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: 22, fontFamily: "'DM Serif Display', serif", margin: '0 auto 12px'}}>
-            {selectedWaiter?.avatar}
-          </div>
+      <div style={T.page}>
+        <BackHeader onPress={() => { setStep('select'); setPin(''); setPinError(''); }} />
+        <div style={{background: '#1A1A1A', padding: '40px 24px 32px', textAlign: 'center'}}>
+          <div style={{width: 56, height: 56, borderRadius: 28, background: '#2A2A2A', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: 22, fontFamily: "'DM Serif Display', serif", margin: '0 auto 12px'}}>{selectedWaiter?.avatar}</div>
           <div style={{color: '#fff', fontWeight: 700, fontSize: 22, fontFamily: "'DM Serif Display', serif"}}>{selectedWaiter?.name}</div>
           <div style={{color: 'rgba(255,255,255,0.4)', fontSize: 13, marginTop: 4}}>Enter your PIN to start shift</div>
         </div>
-        <div style={{flex: 1, padding: '0 20px 40px'}}>
+        <div style={{padding: '0 20px 40px'}}>
           <div style={{background: '#fff', borderRadius: '0 0 20px 20px', padding: 28, border: '1px solid #F0EFED', borderTop: 'none'}}>
-            <button onClick={() => { setStep('select'); setPin(''); setPinError(''); }} style={{background: '#F5F4F2', border: 'none', borderRadius: 10, padding: '8px 10px', cursor: 'pointer', display: 'flex', alignItems: 'center', marginBottom: 24}}><Icons.back /></button>
-
             <div style={{background: '#F5F4F2', borderRadius: 14, padding: '16px 24px', marginBottom: 24, textAlign: 'center'}}>
               <div style={{fontSize: 32, fontWeight: 700, color: '#1A1A1A', letterSpacing: 12, fontFamily: "'DM Serif Display', serif", minHeight: 42}}>
                 {pin ? '●'.repeat(pin.length) : <span style={{color: '#C4BFB8', fontSize: 24}}>- - - -</span>}
               </div>
             </div>
-
             {pinError && <div style={{color: '#C2410C', fontSize: 13, textAlign: 'center', marginBottom: 16, fontWeight: 500}}>{pinError}</div>}
-
             <div style={{display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginBottom: 16}}>
               {[1,2,3,4,5,6,7,8,9,'',0,'⌫'].map((k, i) => (
                 <button key={i} onClick={() => handlePinKey(String(k === '⌫' ? '⌫' : k))}
@@ -185,27 +180,19 @@ export default function WaiterStaffApp({ onBack }) {
 
   return (
     <div style={T.page}>
-      <div style={{background: '#fff', padding: '14px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #F0EFED', position: 'sticky', top: 0, zIndex: 100}}>
-        <div style={{width: 44, height: 44, borderRadius: 22, background: '#1A1A1A', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: 16, fontFamily: "'DM Serif Display', serif"}}>
-          {selectedWaiter?.avatar}
-        </div>
-        <div style={{textAlign: 'center'}}>
-          <div style={{fontWeight: 700, fontSize: 15, fontFamily: "'DM Serif Display', serif"}}>{selectedWaiter?.name}</div>
-          <div style={{fontSize: 11, color: '#9B9590', letterSpacing: 0.2}}>WAITER · ON SHIFT</div>
-        </div>
-        <button onClick={() => { setStep('select'); setPin(''); }} style={{background: '#F5F4F2', border: 'none', borderRadius: 10, padding: '8px 12px', cursor: 'pointer', color: '#9B9590', fontSize: 12, fontWeight: 500}}>End</button>
-      </div>
+      <BackHeader
+        onPress={() => { setStep('select'); setPin(''); }}
+        title={selectedWaiter?.name}
+        subtitle="WAITER · ON SHIFT"
+        right={<button onClick={() => { setStep('select'); setPin(''); }} style={{background: '#F5F4F2', border: 'none', borderRadius: 10, padding: '8px 12px', cursor: 'pointer', color: '#9B9590', fontSize: 12, fontWeight: 500}}>End</button>}
+      />
 
       <div style={{display: 'flex', background: '#fff', borderBottom: '1px solid #F0EFED'}}>
         {tabs.map(tab => (
           <button key={tab.key} onClick={() => setView(tab.key)}
             style={{flex: 1, padding: '14px 4px', background: 'none', border: 'none', borderBottom: `2px solid ${view === tab.key ? '#1A1A1A' : 'transparent'}`, fontWeight: view === tab.key ? 700 : 400, fontSize: 13, color: view === tab.key ? '#1A1A1A' : '#9B9590', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6}}>
             {tab.label}
-            {tab.badge > 0 && (
-              <div style={{width: 18, height: 18, borderRadius: 9, background: '#C2410C', color: '#fff', fontSize: 10, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-                {tab.badge}
-              </div>
-            )}
+            {tab.badge > 0 && <div style={{width: 18, height: 18, borderRadius: 9, background: '#C2410C', color: '#fff', fontSize: 10, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>{tab.badge}</div>}
           </button>
         ))}
       </div>
@@ -216,10 +203,7 @@ export default function WaiterStaffApp({ onBack }) {
             <div style={{fontWeight: 700, fontSize: 16, fontFamily: "'DM Serif Display', serif", marginBottom: 4}}>Waiter Requests</div>
             <div style={{fontSize: 12, color: '#9B9590', marginBottom: 16}}>Tables needing your attention</div>
             {requests.length === 0 ? (
-              <div style={{textAlign: 'center', padding: '48px 20px', color: '#9B9590'}}>
-                <div style={{fontSize: 32, marginBottom: 8}}>—</div>
-                <div style={{fontWeight: 600}}>All clear</div>
-              </div>
+              <div style={{textAlign: 'center', padding: '48px 20px', color: '#9B9590'}}><div style={{fontSize: 32, marginBottom: 8}}>—</div><div style={{fontWeight: 600}}>All clear</div></div>
             ) : requests.map(req => (
               <div key={req.id} style={{...T.card, padding: 16, marginBottom: 10, borderLeft: '3px solid #C2410C', animation: 'slideIn 0.3s ease'}}>
                 <div style={{display: 'flex', alignItems: 'center', gap: 14}}>
@@ -243,12 +227,9 @@ export default function WaiterStaffApp({ onBack }) {
             <div style={{fontWeight: 700, fontSize: 16, fontFamily: "'DM Serif Display', serif", marginBottom: 4}}>Ready to Deliver</div>
             <div style={{fontSize: 12, color: '#9B9590', marginBottom: 16}}>Orders ready from kitchen</div>
             {readyOrders.length === 0 ? (
-              <div style={{textAlign: 'center', padding: '48px 20px', color: '#9B9590'}}>
-                <div style={{fontSize: 32, marginBottom: 8}}>—</div>
-                <div style={{fontWeight: 600}}>Nothing to deliver</div>
-              </div>
+              <div style={{textAlign: 'center', padding: '48px 20px', color: '#9B9590'}}><div style={{fontSize: 32, marginBottom: 8}}>—</div><div style={{fontWeight: 600}}>Nothing to deliver</div></div>
             ) : readyOrders.map(order => (
-              <div key={order.id} style={{...T.card, padding: 16, marginBottom: 10, borderLeft: '3px solid #15803D', animation: 'slideIn 0.3s ease'}}>
+              <div key={order.id} style={{...T.card, padding: 16, marginBottom: 10, borderLeft: '3px solid #15803D'}}>
                 <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10}}>
                   <div>
                     <div style={{fontWeight: 700, fontSize: 16, fontFamily: "'DM Serif Display', serif"}}>Table {order.table_number}</div>

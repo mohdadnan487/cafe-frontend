@@ -496,7 +496,7 @@ export default function CustomerApp({ tableNumber }) {
                         <div style={{display: 'flex', gap: 4, marginBottom: 6, flexWrap: 'wrap'}}>
                           {item.tags.map(tag => (
                             <div key={tag} style={{display: 'flex', alignItems: 'center', gap: 3, background: '#F0FDF4', color: '#059669', padding: '2px 6px', borderRadius: 4, fontSize: 10, fontWeight: 500}}>
-                              <Icons.leaf /> {DIETARY_OPTIONS.find(d => d.id === tag)?.label}
+                              {DIETARY_OPTIONS.find(d => d.id === tag)?.label}
                             </div>
                           ))}
                         </div>

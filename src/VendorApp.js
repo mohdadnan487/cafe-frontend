@@ -67,9 +67,7 @@ const TABLE_STATUS = [
 ];
 
 const Badge = ({ count }) => count > 0 ? (
-  <div style={{position: 'absolute', top: -4, right: -4, minWidth: 16, height: 16, borderRadius: 8, background: '#C2410C', color: '#fff', fontSize: 9, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px', border: '1.5px solid #fff'}}>
-    {count}
-  </div>
+  <div style={{position: 'absolute', top: -2, right: -2, width: 8, height: 8, borderRadius: 4, background: '#C2410C', border: '1.5px solid #FAFAF9'}} />
 ) : null;
 
 export default function VendorApp({ onLogout }) {

@@ -104,8 +104,8 @@ export default function WaiterStaffApp({ onBack }) {
   if (step === 'select') {
     return (
       <div style={T.page}>
-        <BackHeader onPress={onBack} />
-        <div style={{background: '#1A1A1A', padding: '40px 24px 32px', textAlign: 'center'}}>
+        
+        <div style={{background:'#1A1A1A',padding:'20px 20px 32px',textAlign:'center'}}><div style={{display:'flex',marginBottom:24}}><button onClick={onBack} style={{background:'rgba(255,255,255,0.1)',border:'none',borderRadius:10,padding:'8px 10px',cursor:'pointer',display:'flex',alignItems:'center',color:'#fff'}}><Icons.back /></button></div>
           <div style={{fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.4)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 12}}>The Food Quarter</div>
           <div style={{color: '#fff', fontWeight: 700, fontSize: 28, fontFamily: "'DM Serif Display', serif"}}>Waiter Login</div>
           <div style={{color: 'rgba(255,255,255,0.4)', fontSize: 13, marginTop: 6}}>Who's starting their shift?</div>
@@ -142,8 +142,8 @@ export default function WaiterStaffApp({ onBack }) {
   if (step === 'pin') {
     return (
       <div style={T.page}>
-        <BackHeader onPress={() => { setStep('select'); setPin(''); setPinError(''); }} />
-        <div style={{background: '#1A1A1A', padding: '40px 24px 32px', textAlign: 'center'}}>
+        
+        <div style={{background:'#1A1A1A',padding:'20px 20px 32px',textAlign:'center'}}><div style={{display:'flex',marginBottom:24}}><button onClick={() => { setStep('select'); setPin(''); setPinError(''); }} style={{background:'rgba(255,255,255,0.1)',border:'none',borderRadius:10,padding:'8px 10px',cursor:'pointer',display:'flex',alignItems:'center',color:'#fff'}}><Icons.back /></button></div>
           <div style={{width: 56, height: 56, borderRadius: 28, background: '#2A2A2A', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: 22, fontFamily: "'DM Serif Display', serif", margin: '0 auto 12px'}}>{selectedWaiter?.avatar}</div>
           <div style={{color: '#fff', fontWeight: 700, fontSize: 22, fontFamily: "'DM Serif Display', serif"}}>{selectedWaiter?.name}</div>
           <div style={{color: 'rgba(255,255,255,0.4)', fontSize: 13, marginTop: 4}}>Enter your PIN to start shift</div>
